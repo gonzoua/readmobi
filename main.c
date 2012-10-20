@@ -72,14 +72,14 @@ main(int argc, const char *argv[])
 	mobi_data = (unsigned char*)ptr;
 
 	pdb_header = pdb_header_alloc();
+
 	file_pos = pdb_header_read(pdb_header, mobi_data, file_size);
 	if (file_pos < 0) {
 		fprintf(stderr, "pdb_header_read failed\n");
 		exit(0);
 	}
 
-	pdb_header_print(pdb_header);
-
+	pdb_header_print(pdb_header, 0);
 	munmap(ptr, file_size);
 
     return 0;

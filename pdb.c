@@ -51,8 +51,10 @@ pdb_header_free(pdb_header_t* header)
 }
 
 void
-pdb_header_print(pdb_header_t* h)
+pdb_header_print(pdb_header_t* h, int print_records)
 {
+    int i;
+
 	printf("PDB Header\n");
 	printf("  DB Name: %s\n", h->pdb_db_name);
 	printf("  Attributes:");
@@ -81,12 +83,24 @@ pdb_header_print(pdb_header_t* h)
 	printf("  UID seed: %08x\n", h->pdb_uid_seed);
 	printf("  Next record: %d\n", h->pdb_next_record);
 	printf("  # of Records: %d\n", h->pdb_num_records);
+	if (h->pdb_num_records && print_records) {
+        printf("  Records:\n");
+        for (i = 0; i < h->pdb_num_records; i++) {
+            printf("    <");
+            printf("offset=%d,attr=%08x,id=%06x",
+                    h->pdb_records[i].rec_offset,
+                    h->pdb_records[i].rec_attributes,
+                    h->pdb_records[i].rec_id);
+            printf(">\n");
+        }
+    }
 }
 
 off_t
 pdb_header_read(pdb_header_t* h, unsigned char *ptr, off_t size)
 {
 	unsigned char *orig_ptr = ptr;
+    int i;
 
 	if (size < MIN_PDB_HEADER_SIZE)
 		return (-1);
@@ -133,6 +147,24 @@ pdb_header_read(pdb_header_t* h, unsigned char *ptr, off_t size)
 
 	h->pdb_num_records = bs_read_2(ptr);
 	ptr += 2;
+
+    if (h->pdb_num_records) {
+        h->pdb_records = malloc(sizeof(pdb_record_t)*h->pdb_num_records);
+        /* TODO: ENOMEM here */
+        if (!h->pdb_records)
+            return (-1);
+        for (i = 0; i < h->pdb_num_records; i++) {
+	        h->pdb_records[i].rec_offset = bs_read_4(ptr);
+            ptr += 4;
+	        h->pdb_records[i].rec_attributes = bs_read_1(ptr);
+            ptr += 1;
+	        h->pdb_records[i].rec_id = (ptr[0] << 16) | (ptr[1] << 8) | ptr[2];
+            ptr += 3;
+        }
+    }
+
+    /* Trailing two bytes */
+    ptr += 2;
 
 	return (ptr - orig_ptr);
 }
