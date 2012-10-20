@@ -70,7 +70,17 @@ pdb_header_print(pdb_header_t* h)
 		printf(" NO_BEAM");
 	printf(" (%04x)\n", h->pdb_attributes);
 	printf("  Version: %d\n", h->pdb_version);
-
+	printf("  Creation time: %d\n", h->pdb_ctime);
+	printf("  Modification time: %d\n", h->pdb_mtime);
+	printf("  Last backup time: %d\n", h->pdb_btime);
+	printf("  Modification #: %d\n", h->pdb_modification);
+	printf("  App info offset: %d\n", h->pdb_app_info_offset);
+	printf("  Sort info offset: %d\n", h->pdb_sort_info_offset);
+	printf("  Type: %08x\n", h->pdb_type);
+	printf("  Creator: %08x\n", h->pdb_creator);
+	printf("  UID seed: %08x\n", h->pdb_uid_seed);
+	printf("  Next record: %d\n", h->pdb_next_record);
+	printf("  # of Records: %d\n", h->pdb_num_records);
 }
 
 off_t
@@ -89,6 +99,39 @@ pdb_header_read(pdb_header_t* h, unsigned char *ptr, off_t size)
 	ptr += 2;
 
 	h->pdb_version = bs_read_2(ptr);
+	ptr += 2;
+
+	h->pdb_ctime = bs_read_4(ptr);
+	ptr += 4;
+
+	h->pdb_mtime = bs_read_4(ptr);
+	ptr += 4;
+
+	h->pdb_btime = bs_read_4(ptr);
+	ptr += 4;
+
+	h->pdb_modification = bs_read_4(ptr);
+	ptr += 4;
+
+	h->pdb_app_info_offset = bs_read_4(ptr);
+	ptr += 4;
+
+	h->pdb_sort_info_offset = bs_read_4(ptr);
+	ptr += 4;
+
+	h->pdb_type = bs_read_4(ptr);
+	ptr += 4;
+
+	h->pdb_creator = bs_read_4(ptr);
+	ptr += 4;
+
+	h->pdb_uid_seed = bs_read_4(ptr);
+	ptr += 4;
+    
+	h->pdb_next_record = bs_read_4(ptr);
+	ptr += 4;
+
+	h->pdb_num_records = bs_read_2(ptr);
 	ptr += 2;
 
 	return (ptr - orig_ptr);

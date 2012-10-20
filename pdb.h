@@ -63,7 +63,7 @@ struct pdb_header {
     uint32_t        pdb_creator;
     uint32_t        pdb_uid_seed;
     uint32_t        pdb_next_record;
-    uint32_t        pdb_num_records;
+    uint16_t        pdb_num_records;
     pdb_record_t    *pdb_records;
 };
 
