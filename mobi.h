@@ -26,15 +26,52 @@
 #ifndef __MOBI_H__
 #define __MOBI_H__
 
+#define MOBI_EXTRA_INDEXES  6
+#define MOBI_NO_INDEX       0xffffffffU
+
 struct mobi_header
 {
     /* Old PalmDOC header */
-    uint16_t   mobi_compression;
-    uint16_t   mobi_text_length;
-    uint16_t   mobi_record_count;
-    uint16_t   mobi_record_size;
-    uint16_t   mobi_encryption_type;
+    uint16_t    mobi_compression;
+    uint16_t    mobi_text_length;
+    uint16_t    mobi_record_count;
+    uint16_t    mobi_record_size;
+    uint16_t    mobi_encryption_type;
     /* Actual MOBI header */
+    uint32_t    mobi_indetifier; /* Should be 'MOBI' */
+    uint32_t    mobi_header_length;
+    uint32_t    mobi_type;
+    uint32_t    mobi_text_encoding;
+    uint32_t    mobi_uid;
+    uint32_t    mobi_file_version;
+    uint32_t    mobi_ortographic_index;
+    uint32_t    mobi_inflection_index;
+    uint32_t    mobi_index_names;
+    uint32_t    mobi_index_keys;
+    uint32_t    mobi_extra_index[MOBI_EXTRA_INDEXES];
+    uint32_t    mobi_first_nonbook_index;
+    uint32_t    mobi_full_name_offset;
+    uint32_t    mobi_full_name_length;
+    uint32_t    mobi_locale;
+    uint32_t    mobi_dict_input_lang;
+    uint32_t    mobi_dict_output_lang;
+    uint32_t    mobi_min_version;
+    uint32_t    mobi_first_img_index;
+    uint32_t    mobi_huffman_record_offset;
+    uint32_t    mobi_huffman_record_count;
+    uint32_t    mobi_huffman_table_offset;
+    uint32_t    mobi_huffman_table_count;
+    uint32_t    mobi_exth_flags;
+    uint32_t    mobi_drm_offset;
+    uint32_t    mobi_drm_count;
+    uint32_t    mobi_drm_size;
+    uint32_t    mobi_drm_flags;
+    uint32_t    mobi_first_content_rec;
+    uint32_t    mobi_last_content_rec;
+    uint32_t    mobi_fcis_record_number;
+    uint32_t    mobi_flis_record_number;
+    uint32_t    mobi_extra_record_data_flags;
+    uint32_t    mobi_indx_record_offset;
 };
 
 typedef struct mobi_header mobi_header_t;
