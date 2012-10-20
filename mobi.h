@@ -26,4 +26,22 @@
 #ifndef __MOBI_H__
 #define __MOBI_H__
 
+struct mobi_header
+{
+    /* Old PalmDOC header */
+    uint16_t   mobi_compression;
+    uint16_t   mobi_text_length;
+    uint16_t   mobi_record_count;
+    uint16_t   mobi_record_size;
+    uint16_t   mobi_encryption_type;
+    /* Actual MOBI header */
+};
+
+typedef struct mobi_header mobi_header_t;
+
+mobi_header_t* mobi_header_alloc();
+void mobi_header_free(mobi_header_t*);
+void mobi_header_print(mobi_header_t*);
+off_t mobi_header_read(mobi_header_t*, unsigned char *, off_t);
+
 #endif /* __MOBI_H__ */

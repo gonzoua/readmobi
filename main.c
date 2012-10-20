@@ -48,8 +48,10 @@ main(int argc, const char *argv[])
 	void *ptr;
 	unsigned char *mobi_data;
 	off_t file_size;
-	off_t file_pos;
+	off_t file_pos = 0;
+	off_t bytes_read;
 	pdb_header_t *pdb_header;
+	mobi_header_t *mobi_header;
 
     if (argc < 2) {
 		usage();
@@ -73,13 +75,27 @@ main(int argc, const char *argv[])
 
 	pdb_header = pdb_header_alloc();
 
-	file_pos = pdb_header_read(pdb_header, mobi_data, file_size);
-	if (file_pos < 0) {
+	bytes_read = pdb_header_read(pdb_header, mobi_data, file_size);
+	if (bytes_read < 0) {
 		fprintf(stderr, "pdb_header_read failed\n");
 		exit(0);
 	}
-
 	pdb_header_print(pdb_header, 0);
+
+    file_size -= bytes_read;
+    file_pos += bytes_read;
+    
+	mobi_header = mobi_header_alloc();
+	bytes_read = mobi_header_read(mobi_header, (mobi_data + file_pos), file_size);
+	if (bytes_read < 0) {
+		fprintf(stderr, "mobi_header_read failed\n");
+		exit(0);
+	}
+	mobi_header_print(mobi_header);
+
+    file_size -= bytes_read;
+    file_pos += bytes_read;
+
 	munmap(ptr, file_size);
 
     return 0;
