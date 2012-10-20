@@ -24,10 +24,63 @@
  * SUCH DAMAGE.
  */
 
-#include "mobi.h"
+#include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <stdlib.h>
+#include <sys/mman.h>
+#include <sys/mman.h>
+#include <stdint.h>
 
-int main(int argc, const char *argv[])
+#include "mobi.h"
+#include "pdb.h"
+
+static void
+usage(void)
 {
-    
+	printf("Usage: readmobi file.mobi\n");
+}
+
+int
+main(int argc, const char *argv[])
+{
+	int fd;
+	void *ptr;
+	unsigned char *mobi_data;
+	off_t file_size;
+	off_t file_pos;
+	pdb_header_t *pdb_header;
+
+    if (argc < 2) {
+		usage();
+		exit(1);
+	}
+
+	fd = open(argv[1], O_RDONLY);
+	if (fd < 0) {
+		perror("open");
+		exit(1);
+	}
+
+	file_size = lseek(fd, 0, SEEK_END);
+	ptr = mmap(NULL, file_size, PROT_READ, MAP_SHARED, fd, 0);
+	if (ptr == MAP_FAILED) {
+		perror("mmap");
+		exit(1);
+	}
+
+	mobi_data = (unsigned char*)ptr;
+
+	pdb_header = pdb_header_alloc();
+	file_pos = pdb_header_read(pdb_header, mobi_data, file_size);
+	if (file_pos < 0) {
+		fprintf(stderr, "pdb_header_read failed\n");
+		exit(0);
+	}
+
+	pdb_header_print(pdb_header);
+
+	munmap(ptr, file_size);
+
     return 0;
 }

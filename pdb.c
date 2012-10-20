@@ -24,8 +24,72 @@
  * SUCH DAMAGE.
  */
 
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+
 #include "pdb.h"
 #include "bytestream.h"
 
+#define MIN_PDB_HEADER_SIZE 50
 
+pdb_header_t*
+pdb_header_alloc()
+{
+	pdb_header_t *h = malloc(sizeof(pdb_header_t));
+	memset(h, 0, sizeof(*h));
+	return h;
+}
 
+void
+pdb_header_free(pdb_header_t* header)
+{
+	if (header->pdb_records)
+		free(header->pdb_records);
+	free(header);
+}
+
+void
+pdb_header_print(pdb_header_t* h)
+{
+	printf("PDB Header\n");
+	printf("  DB Name: %s\n", h->pdb_db_name);
+	printf("  Attributes:");
+	if (h->pdb_attributes & PDB_HEADER_READONLY)
+		printf(" READONLY");
+	if (h->pdb_attributes & PDB_HEADER_DIRTY_APPINFO)
+		printf(" DIRTY_APPINFO");
+	if (h->pdb_attributes & PDB_HEADER_BACKUP)
+		printf(" BACKUP");
+	if (h->pdb_attributes & PDB_HEADER_NEWER_OK)
+		printf(" NEWER_OK");
+	if (h->pdb_attributes & PDB_HEADER_RESET_AFTER_INSTALL)
+		printf(" RESET");
+	if (h->pdb_attributes & PDB_HEADER_NO_BEAM)
+		printf(" NO_BEAM");
+	printf(" (%04x)\n", h->pdb_attributes);
+	printf("  Version: %d\n", h->pdb_version);
+
+}
+
+off_t
+pdb_header_read(pdb_header_t* h, unsigned char *ptr, off_t size)
+{
+	unsigned char *orig_ptr = ptr;
+
+	if (size < MIN_PDB_HEADER_SIZE)
+		return (-1);
+
+	memcpy(h->pdb_db_name, ptr, sizeof(h->pdb_db_name));
+	h->pdb_db_name[sizeof(h->pdb_db_name)-1] = 0;
+	ptr += sizeof(h->pdb_db_name);
+
+	h->pdb_attributes = bs_read_2(ptr);
+	ptr += 2;
+
+	h->pdb_version = bs_read_2(ptr);
+	ptr += 2;
+
+	return (ptr - orig_ptr);
+}

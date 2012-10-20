@@ -72,6 +72,6 @@ typedef struct pdb_header pdb_header_t;
 pdb_header_t* pdb_header_alloc();
 void pdb_header_free(pdb_header_t*);
 void pdb_header_print(pdb_header_t*);
-int pdb_header_read(pdb_header_t*, unsigned char *ptr, int size);
+off_t pdb_header_read(pdb_header_t*, unsigned char *, off_t);
 
 #endif /* __PDB_H__ */

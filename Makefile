@@ -1,7 +1,8 @@
-SOURCES= main.c
+SOURCES= main.c pdb.c
 HEADERS= pdb.h
 
 OBJECTS=$(SOURCES:.c=.o)
+CFLAGS= -Wall
 
 all: readmobi
 
