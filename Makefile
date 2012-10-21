@@ -1,8 +1,8 @@
-SOURCES= main.c mobi.c pdb.c
-HEADERS= pdb.h mobi.h
+SOURCES= main.c mobi.c pdb.c exth.c
+HEADERS= pdb.h mobi.h exth.h
 
 OBJECTS=$(SOURCES:.c=.o)
-CFLAGS= -Wall
+CFLAGS= -Wall -g
 
 all: readmobi
 

@@ -33,6 +33,7 @@
 #include <stdint.h>
 
 #include "mobi.h"
+#include "exth.h"
 #include "pdb.h"
 
 static void
@@ -52,6 +53,7 @@ main(int argc, const char *argv[])
 	off_t bytes_read;
 	pdb_header_t *pdb_header;
 	mobi_header_t *mobi_header;
+	exth_header_t *exth_header;
 
     if (argc < 2) {
 		usage();
@@ -92,6 +94,17 @@ main(int argc, const char *argv[])
 		exit(0);
 	}
 	mobi_header_print(mobi_header);
+
+    file_size -= bytes_read;
+    file_pos += bytes_read;
+
+	exth_header = exth_header_alloc();
+	bytes_read = exth_header_read(exth_header, (mobi_data + file_pos), file_size);
+	if (bytes_read < 0) {
+		fprintf(stderr, "exth_header_read failed\n");
+		exit(0);
+	}
+	exth_header_print(exth_header);
 
     file_size -= bytes_read;
     file_pos += bytes_read;

@@ -95,6 +95,7 @@ mobi_header_print(mobi_header_t* h)
     printf("  \n");
     printf("  MOBI ID: %08x\n", h->mobi_indetifier);
     printf("  MOBI header length: %d\n", h->mobi_header_length);
+    /* TODO: print proper type here */
     printf("  Type %08x\n", h->mobi_type);
     printf("  Text encoding: %d\n", h->mobi_text_encoding);
     printf("  UniqID: %08x\n", h->mobi_uid);
