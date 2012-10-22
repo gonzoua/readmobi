@@ -82,7 +82,7 @@ main(int argc, const char *argv[])
 		fprintf(stderr, "pdb_header_read failed\n");
 		exit(0);
 	}
-	pdb_header_print(pdb_header, 0);
+	pdb_header_print(pdb_header, 1);
 
     file_size -= bytes_read;
     file_pos += bytes_read;

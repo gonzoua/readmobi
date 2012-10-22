@@ -79,7 +79,7 @@ static exth_record_desc_t record_descs[] = {
     { EXTH_REC_DICT_SHORT_NAME,   EXTH_REC_TYPE_STRING,   "dict_short_name"},
     { EXTH_REC_COVER_OFFSET,      EXTH_REC_TYPE_INT,      "coveroffset"},
     { EXTH_REC_THUMB_OFFSET,      EXTH_REC_TYPE_INT,      "thumboffset"},
-    { EXTH_REC_HAS_FAKE_COVER,    EXTH_REC_TYPE_STRING,   "hasfakecover"},
+    { EXTH_REC_HAS_FAKE_COVER,    EXTH_REC_TYPE_INT,      "hasfakecover"},
     { EXTH_REC_CREATOR_SOFTWARE,  EXTH_REC_TYPE_INT,      "creator_software"},
     { EXTH_REC_CREATOR_MAJ_VER,   EXTH_REC_TYPE_INT,      "creator_maj_ver"},
     { EXTH_REC_CREATOR_MIN_VER ,  EXTH_REC_TYPE_INT,      "creator_min_ver"},
@@ -125,6 +125,33 @@ exth_header_free(exth_header_t* header)
     free(header);
 }
 
+static void
+exth_record_print_content(exth_record_t *rec, const exth_record_desc_t *desc)
+{
+    uint32_t val = 0;
+    int i;
+
+    switch (desc->exth_rec_kind) {
+        case EXTH_REC_TYPE_STRING:
+            for (i = 0; i < rec->exth_rec_length - 8; i++)
+                printf("%c", rec->exth_rec_data[i]);
+            break;
+        case EXTH_REC_TYPE_INT:
+            if (rec->exth_rec_length - 8 > 4) {
+                printf("<int longer then 32 bits>");
+            }
+            for (i = 0; i < rec->exth_rec_length - 8; i++)
+                val = (val << 8) | rec->exth_rec_data[i];
+            printf("%d", val);
+            break;
+        case EXTH_REC_TYPE_UNKNOWN:
+        default:
+            printf("<unkonw type>");
+            break;
+
+    }
+}
+
 void
 exth_header_print(exth_header_t* h)
 {
@@ -142,6 +169,9 @@ exth_header_print(exth_header_t* h)
                 h->exth_records[i].exth_rec_type,
                 desc ? desc->exth_rec_name : "unknown",
                 h->exth_records[i].exth_rec_length - 8);
+        printf("      ");
+        exth_record_print_content(&h->exth_records[i], desc);        
+        printf("\n");
     }
 }
 
