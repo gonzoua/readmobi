@@ -71,7 +71,7 @@ mobi_header_print(mobi_header_t* h)
 {
     int i;
 
-    printf("MOBI header\n");
+    printf("PalmDOC header\n");
     printf("  Compression: %d", h->mobi_compression);
     switch (h->mobi_compression) {
         case 1:
@@ -92,7 +92,7 @@ mobi_header_print(mobi_header_t* h)
     printf("  Record count: %d\n", h->mobi_record_count);
     printf("  Record size: %d\n", h->mobi_record_size);
     printf("  Encryptin type: %d\n", h->mobi_encryption_type);
-    printf("  \n");
+    printf("MOBI header\n");
     printf("  MOBI ID: %08x\n", h->mobi_indetifier);
     printf("  MOBI header length: %d\n", h->mobi_header_length);
     /* TODO: print proper type here */
@@ -213,7 +213,10 @@ mobi_header_read(mobi_header_t* h, unsigned char *ptr, off_t size)
     ptr += 24; /* misc stuff */
 
     MOBI_HEADER_READ_4(h->mobi_extra_record_data_flags, ptr);
-    MOBI_HEADER_READ_4(h->mobi_indx_record_offset, ptr);
+	if (h->mobi_header_length == 0xe8) {
+		MOBI_HEADER_READ_4(h->mobi_indx_record_offset, ptr);
+	} else
+		h->mobi_indx_record_offset = 0xffffffff;
 
 	return (ptr - orig_ptr);
 }
