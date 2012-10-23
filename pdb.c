@@ -51,10 +51,8 @@ pdb_header_free(pdb_header_t* header)
 }
 
 void
-pdb_header_print(pdb_header_t* h, int print_records)
+pdb_header_print(pdb_header_t* h)
 {
-    int i;
-
 	printf("PDB Header\n");
 	printf("  DB Name: %s\n", h->pdb_db_name);
 	printf("  Attributes:");
@@ -83,10 +81,16 @@ pdb_header_print(pdb_header_t* h, int print_records)
 	printf("  UID seed: %08x\n", h->pdb_uid_seed);
 	printf("  Next record: %d\n", h->pdb_next_record);
 	printf("  # of Records: %d\n", h->pdb_num_records);
-	if (h->pdb_num_records && print_records) {
-        printf("  Records:\n");
+}
+
+void
+pdb_header_print_records(pdb_header_t* h)
+{
+    int i;
+	if (h->pdb_num_records) {
+        printf("PDB Records:\n");
         for (i = 0; i < h->pdb_num_records; i++) {
-            printf("    <");
+            printf("  <");
             printf("offset=%d,attr=%08x,id=%06x",
                     h->pdb_records[i].rec_offset,
                     h->pdb_records[i].rec_attributes,
@@ -95,6 +99,8 @@ pdb_header_print(pdb_header_t* h, int print_records)
         }
     }
 }
+
+
 
 off_t
 pdb_header_read(pdb_header_t* h, unsigned char *ptr, off_t size)

@@ -155,25 +155,33 @@ exth_record_print_content(exth_record_t *rec, const exth_record_desc_t *desc)
 void
 exth_header_print(exth_header_t* h)
 {
-    int i;
-    const exth_record_desc_t *desc;
-
     printf("EXTH header\n");
     printf("  Identifier: %08x\n", h->exth_identifier);
     printf("  Length: %d\n", h->exth_length);
     printf("  Record count: %d\n", h->exth_record_count);
+}
+
+void
+exth_header_print_records(exth_header_t* h)
+{
+    int i;
+    const exth_record_desc_t *desc;
+
+    printf("EXTH records\n");
 
     for (i = 0; i < h->exth_record_count; i++) {
         desc = exth_get_record_desc(h->exth_records[i].exth_rec_type);
-        printf("    <type=%d(%s),data_length=%d>\n",
+        printf("  <type=%d(%s),data_length=%d>\n",
                 h->exth_records[i].exth_rec_type,
                 desc ? desc->exth_rec_name : "unknown",
                 h->exth_records[i].exth_rec_length - 8);
-        printf("      ");
+        printf("    ");
         exth_record_print_content(&h->exth_records[i], desc);        
         printf("\n");
     }
 }
+
+
 
 off_t
 exth_header_read(exth_header_t* h, unsigned char *ptr, off_t size)
@@ -207,4 +215,3 @@ exth_header_read(exth_header_t* h, unsigned char *ptr, off_t size)
 
     return (ptr - orig_ptr);
 }
-

@@ -105,6 +105,7 @@ typedef struct exth_header exth_header_t;
 exth_header_t* exth_header_alloc();
 void exth_header_free(exth_header_t*);
 void exth_header_print(exth_header_t*);
+void exth_header_print_records(exth_header_t*);
 off_t exth_header_read(exth_header_t*, unsigned char *, off_t);
 
 #endif // __EXTH_H__

@@ -25,12 +25,12 @@
  */
 
 #include <stdio.h>
-#include <unistd.h>
-#include <fcntl.h>
 #include <stdlib.h>
 #include <sys/mman.h>
 #include <sys/mman.h>
 #include <stdint.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 #include "mobi.h"
 #include "exth.h"
@@ -39,28 +39,76 @@
 static void
 usage(void)
 {
-	printf("Usage: readmobi file.mobi\n");
+	fprintf(stderr, "Usage: readmobi [-admoprR] file.mobi\n");
+	fprintf(stderr, "\t-a\t\tprint all headers/records\n");
+	fprintf(stderr, "\t-d\t\tprint PDB headers\n");
+	fprintf(stderr, "\t-D\t\tprint PDB records\n");
+	fprintf(stderr, "\t-e\t\tprint EXTH header\n");
+	fprintf(stderr, "\t-E\t\tprint EXTH records\n");
+	fprintf(stderr, "\t-m\t\tprint MOBI headers\n");
 }
 
 int
-main(int argc, const char *argv[])
+main(int argc, char **argv)
 {
 	int fd;
 	void *ptr;
 	unsigned char *mobi_data;
+	char ch;
 	off_t file_size;
 	off_t file_pos = 0;
 	off_t bytes_read;
+
+	int print_pdb_header = 0;
+	int print_pdb_records = 0;
+	int print_mobi_header = 0;
+	int print_exth_header = 0;
+	int print_exth_records = 0;
+
 	pdb_header_t *pdb_header;
 	mobi_header_t *mobi_header;
 	exth_header_t *exth_header;
 
-    if (argc < 2) {
+	while ((ch = getopt(argc, argv, "adDeEm")) != -1) {
+		switch (ch) {
+			case 'a':
+				print_pdb_header = 1;
+				print_pdb_records = 1;
+				print_mobi_header = 1;
+				print_exth_header = 1;
+				print_exth_records = 1;
+				break;
+			case 'd':
+				print_pdb_header = 1;
+				break;
+			case 'D':
+				print_pdb_records = 1;
+				break;
+			case 'e':
+				print_exth_header = 1;
+				break;
+			case 'E':
+				print_exth_records = 1;
+				break;
+			case 'm':
+				print_mobi_header = 1;
+				break;
+			case '?':
+			default:
+				usage();
+				break;
+		}
+	}
+
+	argc -= optind;
+	argv += optind;
+
+    if (argc < 1) {
 		usage();
 		exit(1);
 	}
 
-	fd = open(argv[1], O_RDONLY);
+	fd = open(argv[0], O_RDONLY);
 	if (fd < 0) {
 		perror("open");
 		exit(1);
@@ -82,7 +130,12 @@ main(int argc, const char *argv[])
 		fprintf(stderr, "pdb_header_read failed\n");
 		exit(0);
 	}
-	pdb_header_print(pdb_header, 1);
+
+	if (print_pdb_header)
+		pdb_header_print(pdb_header);
+
+	if (print_pdb_records)
+		pdb_header_print_records(pdb_header);
 
     file_size -= bytes_read;
     file_pos += bytes_read;
@@ -93,7 +146,9 @@ main(int argc, const char *argv[])
 		fprintf(stderr, "mobi_header_read failed\n");
 		exit(0);
 	}
-	mobi_header_print(mobi_header);
+
+	if (print_mobi_header)
+		mobi_header_print(mobi_header);
 
     file_size -= bytes_read;
     file_pos += bytes_read;
@@ -104,7 +159,12 @@ main(int argc, const char *argv[])
 		fprintf(stderr, "exth_header_read failed\n");
 		exit(0);
 	}
-	exth_header_print(exth_header);
+
+	if (print_exth_header)
+		exth_header_print(exth_header);
+
+	if (print_exth_records)
+		exth_header_print_records(exth_header);
 
     file_size -= bytes_read;
     file_pos += bytes_read;
