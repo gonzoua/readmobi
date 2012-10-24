@@ -31,6 +31,7 @@
 
 #include "pdb.h"
 #include "bytestream.h"
+#include "utils.h"
 
 #define MIN_PDB_HEADER_SIZE 50
 
@@ -76,8 +77,8 @@ pdb_header_print(pdb_header_t* h)
 	printf("  Modification #: %d\n", h->pdb_modification);
 	printf("  App info offset: %d\n", h->pdb_app_info_offset);
 	printf("  Sort info offset: %d\n", h->pdb_sort_info_offset);
-	printf("  Type: %08x\n", h->pdb_type);
-	printf("  Creator: %08x\n", h->pdb_creator);
+	printf("  Type: %08x (%s)\n", h->pdb_type, id2string(h->pdb_type));
+	printf("  Creator: %08x (%s)\n", h->pdb_creator, id2string(h->pdb_creator));
 	printf("  UID seed: %08x\n", h->pdb_uid_seed);
 	printf("  Next record: %d\n", h->pdb_next_record);
 	printf("  # of Records: %d\n", h->pdb_num_records);

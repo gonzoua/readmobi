@@ -30,6 +30,7 @@
 
 #include "mobi.h"
 #include "bytestream.h"
+#include "utils.h"
 
 #define MIN_MOBI_HEADER_SIZE (16 + 0xf8)
 
@@ -93,7 +94,7 @@ mobi_header_print(mobi_header_t* h)
     printf("  Record size: %d\n", h->mobi_record_size);
     printf("  Encryptin type: %d\n", h->mobi_encryption_type);
     printf("MOBI header\n");
-    printf("  MOBI ID: %08x\n", h->mobi_indetifier);
+    printf("  MOBI ID: %08x (%s)\n", h->mobi_indetifier, id2string(h->mobi_indetifier));
     printf("  MOBI header length: %d\n", h->mobi_header_length);
     /* TODO: print proper type here */
     printf("  Type %08x\n", h->mobi_type);

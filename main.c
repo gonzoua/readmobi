@@ -39,13 +39,14 @@
 static void
 usage(void)
 {
-	fprintf(stderr, "Usage: readmobi [-admoprR] file.mobi\n");
-	fprintf(stderr, "\t-a\t\tprint all headers/records\n");
-	fprintf(stderr, "\t-d\t\tprint PDB headers\n");
-	fprintf(stderr, "\t-D\t\tprint PDB records\n");
-	fprintf(stderr, "\t-e\t\tprint EXTH header\n");
-	fprintf(stderr, "\t-E\t\tprint EXTH records\n");
-	fprintf(stderr, "\t-m\t\tprint MOBI headers\n");
+	fprintf(stderr, "Usage: readmobi [-adDeEm] [-r id] file.mobi\n");
+	fprintf(stderr, "\t-a\t\t\tprint all headers/records\n");
+	fprintf(stderr, "\t-d\t\t\tprint PDB headers\n");
+	fprintf(stderr, "\t-D\t\t\tprint PDB records\n");
+	fprintf(stderr, "\t-e\t\t\tprint EXTH header\n");
+	fprintf(stderr, "\t-E\t\t\tprint EXTH records\n");
+	fprintf(stderr, "\t-m\t\t\tprint MOBI headers\n");
+	fprintf(stderr, "\t-r record_id\t\tDump PDB record\n");
 }
 
 int
@@ -64,12 +65,13 @@ main(int argc, char **argv)
 	int print_mobi_header = 0;
 	int print_exth_header = 0;
 	int print_exth_records = 0;
+    int dump_record = -1;
 
 	pdb_header_t *pdb_header;
 	mobi_header_t *mobi_header;
 	exth_header_t *exth_header;
 
-	while ((ch = getopt(argc, argv, "adDeEm")) != -1) {
+	while ((ch = getopt(argc, argv, "adDeEmr:?")) != -1) {
 		switch (ch) {
 			case 'a':
 				print_pdb_header = 1;
@@ -93,13 +95,24 @@ main(int argc, char **argv)
 			case 'm':
 				print_mobi_header = 1;
 				break;
+            case 'r':
+                dump_record = atoi(optarg);
+                break;
 			case '?':
 			default:
 				usage();
+                exit(0);
 				break;
 		}
 	}
 
+	if ((print_pdb_header || print_pdb_records ||
+            print_mobi_header || print_exth_header || 
+            print_exth_records) && (dump_record > -1)) {
+        fprintf(stderr, "Can't mix -r and -adDeEm options\n");
+        exit(0);
+    }
+    
 	argc -= optind;
 	argv += optind;
 

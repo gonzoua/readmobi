@@ -30,6 +30,7 @@
 
 #include "exth.h"
 #include "bytestream.h"
+#include "utils.h"
 
 #define MIN_EXTH_HEADER_SIZE 12
 
@@ -156,7 +157,7 @@ void
 exth_header_print(exth_header_t* h)
 {
     printf("EXTH header\n");
-    printf("  Identifier: %08x\n", h->exth_identifier);
+    printf("  Identifier: %08x (%s)\n", h->exth_identifier, id2string(h->exth_identifier));
     printf("  Length: %d\n", h->exth_length);
     printf("  Record count: %d\n", h->exth_record_count);
 }
