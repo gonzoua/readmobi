@@ -56,15 +56,15 @@
 mobi_header_t*
 mobi_header_alloc()
 {
-	mobi_header_t *h = malloc(sizeof(mobi_header_t));
-	memset(h, 0, sizeof(*h));
-	return h;
+    mobi_header_t *h = malloc(sizeof(mobi_header_t));
+    memset(h, 0, sizeof(*h));
+    return h;
 }
 
 void
 mobi_header_free(mobi_header_t* header)
 {
-	free(header);
+    free(header);
 }
 
 void
@@ -141,24 +141,24 @@ mobi_header_print(mobi_header_t* h)
 off_t
 mobi_header_read(mobi_header_t* h, unsigned char *ptr, off_t size)
 {
-	unsigned char *orig_ptr = ptr;
+    unsigned char *orig_ptr = ptr;
     int i;
 
-	if (size < MIN_MOBI_HEADER_SIZE)
-		return (-1);
+    if (size < MIN_MOBI_HEADER_SIZE)
+        return (-1);
 
     MOBI_HEADER_READ_2(h->mobi_compression, ptr);
 
     /* Skip 2 unused bytes */
-	ptr += 2;
+    ptr += 2;
 
-	MOBI_HEADER_READ_4(h->mobi_text_length, ptr);
-	MOBI_HEADER_READ_2(h->mobi_record_count, ptr);
-	MOBI_HEADER_READ_2(h->mobi_record_size, ptr);
-	MOBI_HEADER_READ_2(h->mobi_encryption_type, ptr);
+    MOBI_HEADER_READ_4(h->mobi_text_length, ptr);
+    MOBI_HEADER_READ_2(h->mobi_record_count, ptr);
+    MOBI_HEADER_READ_2(h->mobi_record_size, ptr);
+    MOBI_HEADER_READ_2(h->mobi_encryption_type, ptr);
 
     /* zeroes */
-	ptr += 2;
+    ptr += 2;
 
     MOBI_HEADER_READ_4(h->mobi_indetifier, ptr);
     MOBI_HEADER_READ_4(h->mobi_header_length, ptr);
@@ -214,10 +214,10 @@ mobi_header_read(mobi_header_t* h, unsigned char *ptr, off_t size)
     ptr += 24; /* misc stuff */
 
     MOBI_HEADER_READ_4(h->mobi_extra_record_data_flags, ptr);
-	if (h->mobi_header_length == 0xe8) {
-		MOBI_HEADER_READ_4(h->mobi_indx_record_offset, ptr);
-	} else
-		h->mobi_indx_record_offset = 0xffffffff;
+    if (h->mobi_header_length == 0xe8) {
+        MOBI_HEADER_READ_4(h->mobi_indx_record_offset, ptr);
+    } else
+        h->mobi_indx_record_offset = 0xffffffff;
 
-	return (ptr - orig_ptr);
+    return (ptr - orig_ptr);
 }

@@ -39,150 +39,150 @@
 static void
 usage(void)
 {
-	fprintf(stderr, "Usage: readmobi [-adDeEm] [-r id] file.mobi\n");
-	fprintf(stderr, "\t-a\t\t\tprint all headers/records\n");
-	fprintf(stderr, "\t-d\t\t\tprint PDB headers\n");
-	fprintf(stderr, "\t-D\t\t\tprint PDB records\n");
-	fprintf(stderr, "\t-e\t\t\tprint EXTH header\n");
-	fprintf(stderr, "\t-E\t\t\tprint EXTH records\n");
-	fprintf(stderr, "\t-m\t\t\tprint MOBI headers\n");
-	fprintf(stderr, "\t-r record_id\t\tDump PDB record\n");
+    fprintf(stderr, "Usage: readmobi [-adDeEm] [-r id] file.mobi\n");
+    fprintf(stderr, "\t-a\t\t\tprint all headers/records\n");
+    fprintf(stderr, "\t-d\t\t\tprint PDB headers\n");
+    fprintf(stderr, "\t-D\t\t\tprint PDB records\n");
+    fprintf(stderr, "\t-e\t\t\tprint EXTH header\n");
+    fprintf(stderr, "\t-E\t\t\tprint EXTH records\n");
+    fprintf(stderr, "\t-m\t\t\tprint MOBI headers\n");
+    fprintf(stderr, "\t-r record_id\t\tDump PDB record\n");
 }
 
 int
 main(int argc, char **argv)
 {
-	int fd;
-	void *ptr;
-	unsigned char *mobi_data;
-	char ch;
-	off_t file_size;
-	off_t file_pos = 0;
-	off_t bytes_read;
+    int fd;
+    void *ptr;
+    unsigned char *mobi_data;
+    char ch;
+    off_t file_size;
+    off_t file_pos = 0;
+    off_t bytes_read;
 
-	int print_pdb_header = 0;
-	int print_pdb_records = 0;
-	int print_mobi_header = 0;
-	int print_exth_header = 0;
-	int print_exth_records = 0;
+    int print_pdb_header = 0;
+    int print_pdb_records = 0;
+    int print_mobi_header = 0;
+    int print_exth_header = 0;
+    int print_exth_records = 0;
     int dump_record = -1;
 
-	pdb_header_t *pdb_header;
-	mobi_header_t *mobi_header;
-	exth_header_t *exth_header;
+    pdb_header_t *pdb_header;
+    mobi_header_t *mobi_header;
+    exth_header_t *exth_header;
 
-	while ((ch = getopt(argc, argv, "adDeEmr:?")) != -1) {
-		switch (ch) {
-			case 'a':
-				print_pdb_header = 1;
-				print_pdb_records = 1;
-				print_mobi_header = 1;
-				print_exth_header = 1;
-				print_exth_records = 1;
-				break;
-			case 'd':
-				print_pdb_header = 1;
-				break;
-			case 'D':
-				print_pdb_records = 1;
-				break;
-			case 'e':
-				print_exth_header = 1;
-				break;
-			case 'E':
-				print_exth_records = 1;
-				break;
-			case 'm':
-				print_mobi_header = 1;
-				break;
+    while ((ch = getopt(argc, argv, "adDeEmr:?")) != -1) {
+        switch (ch) {
+            case 'a':
+                print_pdb_header = 1;
+                print_pdb_records = 1;
+                print_mobi_header = 1;
+                print_exth_header = 1;
+                print_exth_records = 1;
+                break;
+            case 'd':
+                print_pdb_header = 1;
+                break;
+            case 'D':
+                print_pdb_records = 1;
+                break;
+            case 'e':
+                print_exth_header = 1;
+                break;
+            case 'E':
+                print_exth_records = 1;
+                break;
+            case 'm':
+                print_mobi_header = 1;
+                break;
             case 'r':
                 dump_record = atoi(optarg);
                 break;
-			case '?':
-			default:
-				usage();
+            case '?':
+            default:
+                usage();
                 exit(0);
-				break;
-		}
-	}
+                break;
+        }
+    }
 
-	if ((print_pdb_header || print_pdb_records ||
+    if ((print_pdb_header || print_pdb_records ||
             print_mobi_header || print_exth_header || 
             print_exth_records) && (dump_record > -1)) {
         fprintf(stderr, "Can't mix -r and -adDeEm options\n");
         exit(0);
     }
     
-	argc -= optind;
-	argv += optind;
+    argc -= optind;
+    argv += optind;
 
     if (argc < 1) {
-		usage();
-		exit(1);
-	}
+        usage();
+        exit(1);
+    }
 
-	fd = open(argv[0], O_RDONLY);
-	if (fd < 0) {
-		perror("open");
-		exit(1);
-	}
+    fd = open(argv[0], O_RDONLY);
+    if (fd < 0) {
+        perror("open");
+        exit(1);
+    }
 
-	file_size = lseek(fd, 0, SEEK_END);
-	ptr = mmap(NULL, file_size, PROT_READ, MAP_SHARED, fd, 0);
-	if (ptr == MAP_FAILED) {
-		perror("mmap");
-		exit(1);
-	}
+    file_size = lseek(fd, 0, SEEK_END);
+    ptr = mmap(NULL, file_size, PROT_READ, MAP_SHARED, fd, 0);
+    if (ptr == MAP_FAILED) {
+        perror("mmap");
+        exit(1);
+    }
 
-	mobi_data = (unsigned char*)ptr;
+    mobi_data = (unsigned char*)ptr;
 
-	pdb_header = pdb_header_alloc();
+    pdb_header = pdb_header_alloc();
 
-	bytes_read = pdb_header_read(pdb_header, mobi_data, file_size);
-	if (bytes_read < 0) {
-		fprintf(stderr, "pdb_header_read failed\n");
-		exit(0);
-	}
+    bytes_read = pdb_header_read(pdb_header, mobi_data, file_size);
+    if (bytes_read < 0) {
+        fprintf(stderr, "pdb_header_read failed\n");
+        exit(0);
+    }
 
-	if (print_pdb_header)
-		pdb_header_print(pdb_header);
+    if (print_pdb_header)
+        pdb_header_print(pdb_header);
 
-	if (print_pdb_records)
-		pdb_header_print_records(pdb_header);
+    if (print_pdb_records)
+        pdb_header_print_records(pdb_header);
 
     file_size -= bytes_read;
     file_pos += bytes_read;
     
-	mobi_header = mobi_header_alloc();
-	bytes_read = mobi_header_read(mobi_header, (mobi_data + file_pos), file_size);
-	if (bytes_read < 0) {
-		fprintf(stderr, "mobi_header_read failed\n");
-		exit(0);
-	}
+    mobi_header = mobi_header_alloc();
+    bytes_read = mobi_header_read(mobi_header, (mobi_data + file_pos), file_size);
+    if (bytes_read < 0) {
+        fprintf(stderr, "mobi_header_read failed\n");
+        exit(0);
+    }
 
-	if (print_mobi_header)
-		mobi_header_print(mobi_header);
-
-    file_size -= bytes_read;
-    file_pos += bytes_read;
-
-	exth_header = exth_header_alloc();
-	bytes_read = exth_header_read(exth_header, (mobi_data + file_pos), file_size);
-	if (bytes_read < 0) {
-		fprintf(stderr, "exth_header_read failed\n");
-		exit(0);
-	}
-
-	if (print_exth_header)
-		exth_header_print(exth_header);
-
-	if (print_exth_records)
-		exth_header_print_records(exth_header);
+    if (print_mobi_header)
+        mobi_header_print(mobi_header);
 
     file_size -= bytes_read;
     file_pos += bytes_read;
 
-	munmap(ptr, file_size);
+    exth_header = exth_header_alloc();
+    bytes_read = exth_header_read(exth_header, (mobi_data + file_pos), file_size);
+    if (bytes_read < 0) {
+        fprintf(stderr, "exth_header_read failed\n");
+        exit(0);
+    }
+
+    if (print_exth_header)
+        exth_header_print(exth_header);
+
+    if (print_exth_records)
+        exth_header_print_records(exth_header);
+
+    file_size -= bytes_read;
+    file_pos += bytes_read;
+
+    munmap(ptr, file_size);
 
     return 0;
 }
