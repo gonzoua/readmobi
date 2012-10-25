@@ -56,7 +56,7 @@ struct mobi_header
     uint32_t    mobi_dict_input_lang;
     uint32_t    mobi_dict_output_lang;
     uint32_t    mobi_min_version;
-    uint32_t    mobi_first_img_index;
+    uint32_t    mobi_first_image_rec;
     uint32_t    mobi_huffman_record_offset;
     uint32_t    mobi_huffman_record_count;
     uint32_t    mobi_huffman_table_offset;
@@ -68,8 +68,8 @@ struct mobi_header
     uint32_t    mobi_drm_flags;
     uint32_t    mobi_first_content_rec;
     uint32_t    mobi_last_content_rec;
-    uint32_t    mobi_fcis_record_number;
-    uint32_t    mobi_flis_record_number;
+    uint32_t    mobi_fcis_rec;
+    uint32_t    mobi_flis_rec;
     uint32_t    mobi_extra_record_data_flags;
     uint32_t    mobi_indx_record_offset;
 };

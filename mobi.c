@@ -120,7 +120,7 @@ mobi_header_print(mobi_header_t* h)
     printf("  Dict input length: %d\n", h->mobi_dict_input_lang);
     printf("  Dict output length: %d\n", h->mobi_dict_output_lang);
     printf("  Min version: %d\n", h->mobi_min_version);
-    printf("  First image index: %d\n", h->mobi_first_img_index);
+    printf("  First image index: %d\n", h->mobi_first_image_rec);
     printf("  Huffman record offset: %d\n", h->mobi_huffman_record_offset);
     printf("  Huffman record count: %d\n", h->mobi_huffman_record_count);
     printf("  Huffman table offset: %d\n", h->mobi_huffman_table_offset);
@@ -132,8 +132,8 @@ mobi_header_print(mobi_header_t* h)
     printf("  DRM flags: %08x\n", h->mobi_drm_flags);
     printf("  First content record #: %d\n", h->mobi_first_content_rec);
     printf("  Last content record #: %d\n", h->mobi_last_content_rec);
-    printf("  FCIS record #: %d\n", h->mobi_fcis_record_number);
-    printf("  FLIS record #: %d\n", h->mobi_flis_record_number);
+    printf("  FCIS record #: %d\n", h->mobi_fcis_rec);
+    printf("  FLIS record #: %d\n", h->mobi_flis_rec);
     printf("  Extra record data flags: %08x\n", h->mobi_extra_record_data_flags);
     printf("  INDX record offset: %d\n", h->mobi_indx_record_offset);
 }
@@ -182,7 +182,7 @@ mobi_header_read(mobi_header_t* h, unsigned char *ptr, off_t size)
     MOBI_HEADER_READ_4(h->mobi_dict_input_lang, ptr);
     MOBI_HEADER_READ_4(h->mobi_dict_output_lang, ptr);
     MOBI_HEADER_READ_4(h->mobi_min_version, ptr);
-    MOBI_HEADER_READ_4(h->mobi_first_img_index, ptr);
+    MOBI_HEADER_READ_4(h->mobi_first_image_rec, ptr);
     MOBI_HEADER_READ_4(h->mobi_huffman_record_offset, ptr);
     MOBI_HEADER_READ_4(h->mobi_huffman_record_count, ptr);
     MOBI_HEADER_READ_4(h->mobi_huffman_table_offset, ptr);
@@ -206,9 +206,9 @@ mobi_header_read(mobi_header_t* h, unsigned char *ptr, off_t size)
     /* Skip junk */
     ptr += 4;
 
-    MOBI_HEADER_READ_4(h->mobi_fcis_record_number, ptr);
+    MOBI_HEADER_READ_4(h->mobi_fcis_rec, ptr);
     ptr += 4; /* unknown, just 1 */
-    MOBI_HEADER_READ_4(h->mobi_flis_record_number, ptr);
+    MOBI_HEADER_READ_4(h->mobi_flis_rec, ptr);
     ptr += 4; /* unknown, just 1 */
 
     ptr += 24; /* misc stuff */
