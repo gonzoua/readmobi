@@ -103,3 +103,31 @@ mobi_file_load(mobi_file_t *f, unsigned char *ptr, size_t size)
 
     return 0;
 }
+
+off_t
+mobi_file_record_offset(mobi_file_t* f, uint32_t id)
+{
+    int i;
+    pdb_header_t *h = f->file_pdb_header;
+
+    for (i = 0; i < h->pdb_num_records; i++) {
+        if (h->pdb_records[i].rec_id == id)
+            return (h->pdb_records[i].rec_offset);
+    }
+
+    return (-1);
+}
+
+size_t
+mobi_file_record_size(mobi_file_t* f, uint32_t id)
+{
+    int i;
+    pdb_header_t *h = f->file_pdb_header;
+
+    for (i = 0; i < h->pdb_num_records; i++) {
+        if (h->pdb_records[i].rec_id  == id)
+            return (h->pdb_records[i].rec_size);
+    }
+
+    return (-1);
+}

@@ -161,11 +161,8 @@ main(int argc, char **argv)
         exth_header_print_records(mobi_file->file_exth_header);
 
     if (dump_record > -1) {
-        record_offset = 
-            pdb_header_get_record_offset(mobi_file->file_pdb_header,
-                    dump_record);
-        record_size = 
-            pdb_header_get_record_size(mobi_file->file_pdb_header, dump_record);
+        record_offset = mobi_file_record_offset(mobi_file, dump_record);
+        record_size = mobi_file_record_size(mobi_file, dump_record);
 
         if ((record_offset > 1) && (record_size > 0)) 
             write(fileno(stdout), mobi_data + record_offset, record_size);

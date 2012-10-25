@@ -41,5 +41,7 @@ typedef struct mobi_file mobi_file_t;
 mobi_file_t* mobi_file_alloc();
 int mobi_file_load(mobi_file_t*, unsigned char *, size_t);
 void mobi_file_free(mobi_file_t*);
+off_t mobi_file_record_offset(mobi_file_t*, uint32_t);
+size_t mobi_file_record_size(mobi_file_t*, uint32_t);
 
 #endif /* __MOBI_FILE_H__ */

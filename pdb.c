@@ -190,29 +190,3 @@ pdb_header_read(pdb_header_t* h, unsigned char *ptr, off_t size)
 
     return (ptr - orig_ptr);
 }
-
-off_t
-pdb_header_get_record_offset(pdb_header_t* h, uint32_t id)
-{
-    int i;
-
-    for (i = 0; i < h->pdb_num_records; i++) {
-        if (h->pdb_records[i].rec_id == id)
-            return (h->pdb_records[i].rec_offset);
-    }
-
-    return (-1);
-}
-
-size_t
-pdb_header_get_record_size(pdb_header_t* h, uint32_t id)
-{
-    int i;
-
-    for (i = 0; i < h->pdb_num_records; i++) {
-        if (h->pdb_records[i].rec_id  == id)
-            return (h->pdb_records[i].rec_size);
-    }
-
-    return (-1);
-}

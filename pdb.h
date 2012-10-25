@@ -75,7 +75,5 @@ void pdb_header_free(pdb_header_t*);
 void pdb_header_print(pdb_header_t*);
 void pdb_header_print_records(pdb_header_t*);
 off_t pdb_header_read(pdb_header_t*, unsigned char *, off_t);
-off_t pdb_header_get_record_offset(pdb_header_t*, uint32_t);
-size_t pdb_header_get_record_size(pdb_header_t*, uint32_t);
 
 #endif /* __PDB_H__ */
