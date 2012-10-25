@@ -56,9 +56,12 @@ main(int argc, char **argv)
     void *ptr;
     unsigned char *mobi_data;
     char ch;
+
     off_t file_size;
     off_t file_pos = 0;
     off_t bytes_read;
+    off_t record_offset;
+    size_t record_size;
 
     int print_pdb_header = 0;
     int print_pdb_records = 0;
@@ -144,15 +147,15 @@ main(int argc, char **argv)
         exit(0);
     }
 
+    file_size -= bytes_read;
+    file_pos += bytes_read;
+    
     if (print_pdb_header)
         pdb_header_print(pdb_header);
 
     if (print_pdb_records)
         pdb_header_print_records(pdb_header);
 
-    file_size -= bytes_read;
-    file_pos += bytes_read;
-    
     mobi_header = mobi_header_alloc();
     bytes_read = mobi_header_read(mobi_header, (mobi_data + file_pos), file_size);
     if (bytes_read < 0) {
@@ -160,11 +163,11 @@ main(int argc, char **argv)
         exit(0);
     }
 
-    if (print_mobi_header)
-        mobi_header_print(mobi_header);
-
     file_size -= bytes_read;
     file_pos += bytes_read;
+
+    if (print_mobi_header)
+        mobi_header_print(mobi_header);
 
     exth_header = exth_header_alloc();
     bytes_read = exth_header_read(exth_header, (mobi_data + file_pos), file_size);
@@ -173,14 +176,23 @@ main(int argc, char **argv)
         exit(0);
     }
 
+    file_size -= bytes_read;
+    file_pos += bytes_read;
+
     if (print_exth_header)
         exth_header_print(exth_header);
 
     if (print_exth_records)
         exth_header_print_records(exth_header);
 
-    file_size -= bytes_read;
-    file_pos += bytes_read;
+    if (dump_record > -1) {
+        record_offset = pdb_header_get_record_offset(pdb_header, dump_record);
+        record_size = pdb_header_get_record_size(pdb_header, dump_record);
+        if ((record_offset > 1) && (record_size > 0)) 
+            write(fileno(stdout), mobi_data + record_offset, record_size);
+        else
+            fprintf(stderr, "PDB record #%d not found(%ld, %ld)\n", dump_record, record_offset, record_size);
+    }
 
     munmap(ptr, file_size);
 

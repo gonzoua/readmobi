@@ -92,7 +92,7 @@ pdb_header_print_records(pdb_header_t* h)
         printf("PDB Records:\n");
         for (i = 0; i < h->pdb_num_records; i++) {
             printf("  <");
-            printf("offset=%d,attr=%08x,id=%06x",
+            printf("offset=%d,attr=0x%08x,id=%06d",
                     h->pdb_records[i].rec_offset,
                     h->pdb_records[i].rec_attributes,
                     h->pdb_records[i].rec_id);
@@ -101,13 +101,11 @@ pdb_header_print_records(pdb_header_t* h)
     }
 }
 
-
-
 off_t
 pdb_header_read(pdb_header_t* h, unsigned char *ptr, off_t size)
 {
     unsigned char *orig_ptr = ptr;
-    int i;
+    int i, j;
 
     if (size < MIN_PDB_HEADER_SIZE)
         return (-1);
@@ -170,8 +168,51 @@ pdb_header_read(pdb_header_t* h, unsigned char *ptr, off_t size)
         }
     }
 
+    /* Calculate record sizes */
+    for (i = 0; i < h->pdb_num_records; i++) {
+        h->pdb_records[i].rec_size = 0;
+        /* Records not sorted, look through all of them */
+        for (j = 0; j < h->pdb_num_records; j++) {
+            if (h->pdb_records[j].rec_id == (h->pdb_records[i].rec_id + 1))
+                h->pdb_records[i].rec_size = 
+                    h->pdb_records[j].rec_offset - h->pdb_records[i].rec_offset;
+        }
+
+        /* last record */
+        if (h->pdb_records[i].rec_size == 0) {
+            h->pdb_records[i].rec_size = size - h->pdb_records[i].rec_offset;
+        }
+    }
+
+
     /* Trailing two bytes */
     ptr += 2;
 
     return (ptr - orig_ptr);
+}
+
+size_t
+pdb_header_get_record_offset(pdb_header_t* h, uint32_t id)
+{
+    int i;
+
+    for (i = 0; i < h->pdb_num_records; i++) {
+        if (h->pdb_records[i].rec_id == id)
+            return (h->pdb_records[i].rec_offset);
+    }
+
+    return (-1);
+}
+
+size_t
+pdb_header_get_record_size(pdb_header_t* h, uint32_t id)
+{
+    int i;
+
+    for (i = 0; i < h->pdb_num_records; i++) {
+        if (h->pdb_records[i].rec_id  == id)
+            return (h->pdb_records[i].rec_size);
+    }
+
+    return (-1);
 }
