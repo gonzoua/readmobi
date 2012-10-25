@@ -35,6 +35,7 @@
 #include "mobi.h"
 #include "exth.h"
 #include "pdb.h"
+#include "mobi_file.h"
 
 static void
 usage(void)
@@ -47,6 +48,7 @@ usage(void)
     fprintf(stderr, "\t-E\t\t\tprint EXTH records\n");
     fprintf(stderr, "\t-m\t\t\tprint MOBI headers\n");
     fprintf(stderr, "\t-r record_id\t\tDump PDB record\n");
+    fprintf(stderr, "\t-t\t\t\tDump text\n");
 }
 
 int
@@ -55,13 +57,12 @@ main(int argc, char **argv)
     int fd;
     void *ptr;
     unsigned char *mobi_data;
+    mobi_file_t *mobi_file;
     char ch;
 
-    off_t file_size;
-    off_t file_pos = 0;
-    off_t bytes_read;
     off_t record_offset;
     size_t record_size;
+    off_t file_size;
 
     int print_pdb_header = 0;
     int print_pdb_records = 0;
@@ -69,12 +70,9 @@ main(int argc, char **argv)
     int print_exth_header = 0;
     int print_exth_records = 0;
     int dump_record = -1;
+    int dump_text = 0;
 
-    pdb_header_t *pdb_header;
-    mobi_header_t *mobi_header;
-    exth_header_t *exth_header;
-
-    while ((ch = getopt(argc, argv, "adDeEmr:?")) != -1) {
+    while ((ch = getopt(argc, argv, "adDeEmr:t?")) != -1) {
         switch (ch) {
             case 'a':
                 print_pdb_header = 1;
@@ -100,6 +98,9 @@ main(int argc, char **argv)
                 break;
             case 'r':
                 dump_record = atoi(optarg);
+                break;
+            case 't':
+                dump_text = 1;
                 break;
             case '?':
             default:
@@ -138,60 +139,42 @@ main(int argc, char **argv)
     }
 
     mobi_data = (unsigned char*)ptr;
-
-    pdb_header = pdb_header_alloc();
-
-    bytes_read = pdb_header_read(pdb_header, mobi_data, file_size);
-    if (bytes_read < 0) {
-        fprintf(stderr, "pdb_header_read failed\n");
-        exit(0);
+    mobi_file = mobi_file_alloc();
+    if (mobi_file_load(mobi_file, mobi_data, file_size) < 0) {
+        fprintf(stderr, "Failed to load MOBI file\n");
+        exit(1);
     }
 
-    file_size -= bytes_read;
-    file_pos += bytes_read;
-    
     if (print_pdb_header)
-        pdb_header_print(pdb_header);
+        pdb_header_print(mobi_file->file_pdb_header);
 
     if (print_pdb_records)
-        pdb_header_print_records(pdb_header);
-
-    mobi_header = mobi_header_alloc();
-    bytes_read = mobi_header_read(mobi_header, (mobi_data + file_pos), file_size);
-    if (bytes_read < 0) {
-        fprintf(stderr, "mobi_header_read failed\n");
-        exit(0);
-    }
-
-    file_size -= bytes_read;
-    file_pos += bytes_read;
+        pdb_header_print_records(mobi_file->file_pdb_header);
 
     if (print_mobi_header)
-        mobi_header_print(mobi_header);
-
-    exth_header = exth_header_alloc();
-    bytes_read = exth_header_read(exth_header, (mobi_data + file_pos), file_size);
-    if (bytes_read < 0) {
-        fprintf(stderr, "exth_header_read failed\n");
-        exit(0);
-    }
-
-    file_size -= bytes_read;
-    file_pos += bytes_read;
+        mobi_header_print(mobi_file->file_mobi_header);
 
     if (print_exth_header)
-        exth_header_print(exth_header);
+        exth_header_print(mobi_file->file_exth_header);
 
     if (print_exth_records)
-        exth_header_print_records(exth_header);
+        exth_header_print_records(mobi_file->file_exth_header);
 
     if (dump_record > -1) {
-        record_offset = pdb_header_get_record_offset(pdb_header, dump_record);
-        record_size = pdb_header_get_record_size(pdb_header, dump_record);
+        record_offset = 
+            pdb_header_get_record_offset(mobi_file->file_pdb_header,
+                    dump_record);
+        record_size = 
+            pdb_header_get_record_size(mobi_file->file_pdb_header, dump_record);
+
         if ((record_offset > 1) && (record_size > 0)) 
             write(fileno(stdout), mobi_data + record_offset, record_size);
         else
-            fprintf(stderr, "PDB record #%d not found(%ld, %ld)\n", dump_record, record_offset, record_size);
+            fprintf(stderr, "PDB record #%d not found\n", dump_record);
+    }
+
+    if (dump_text) {
+        
     }
 
     munmap(ptr, file_size);
