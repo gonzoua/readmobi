@@ -191,7 +191,7 @@ pdb_header_read(pdb_header_t* h, unsigned char *ptr, off_t size)
     return (ptr - orig_ptr);
 }
 
-size_t
+off_t
 pdb_header_get_record_offset(pdb_header_t* h, uint32_t id)
 {
     int i;
