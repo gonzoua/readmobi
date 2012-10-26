@@ -94,7 +94,7 @@ mobi_header_print(mobi_header_t* h)
     printf("  Record size: %d\n", h->mobi_record_size);
     printf("  Encryptin type: %d\n", h->mobi_encryption_type);
     printf("MOBI header\n");
-    printf("  MOBI ID: %08x (%s)\n", h->mobi_indetifier, id2string(h->mobi_indetifier));
+    printf("  MOBI ID: %08x (%s)\n", h->mobi_identifier, id2string(h->mobi_identifier));
     printf("  MOBI header length: %d\n", h->mobi_header_length);
     /* TODO: print proper type here */
     printf("  Type %08x\n", h->mobi_type);
@@ -168,7 +168,7 @@ mobi_header_read(mobi_header_t* h, unsigned char *ptr, off_t size)
     /* zeroes */
     ptr += 2;
 
-    MOBI_HEADER_READ_4(h->mobi_indetifier, ptr);
+    MOBI_HEADER_READ_4(h->mobi_identifier, ptr);
     MOBI_HEADER_READ_4(h->mobi_header_length, ptr);
     MOBI_HEADER_READ_4(h->mobi_type, ptr);
     MOBI_HEADER_READ_4(h->mobi_text_encoding, ptr);

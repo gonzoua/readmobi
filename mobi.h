@@ -46,7 +46,7 @@ struct mobi_header
     uint16_t    mobi_record_size;
     uint16_t    mobi_encryption_type;
     /* Actual MOBI header */
-    uint32_t    mobi_indetifier; /* Should be 'MOBI' */
+    uint32_t    mobi_identifier; /* Should be 'MOBI' */
     uint32_t    mobi_header_length;
     uint32_t    mobi_type;
     uint32_t    mobi_text_encoding;
