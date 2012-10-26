@@ -68,6 +68,9 @@
 #define EXTH_REC_LAST_UPDATE                502
 #define EXTH_REC_UPDATED_TITLE              503
 
+/* EXTH */
+#define EXTH_ID     0x45585448
+
 enum exth_record_kind {
     EXTH_REC_TYPE_UNKNOWN,
     EXTH_REC_TYPE_BYTES,

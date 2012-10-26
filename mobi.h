@@ -37,6 +37,9 @@
 #define MOBI_NO_INDEX       0xffffffffU
 #define MOBI_NO_RECORD      0xffffU
 
+/* 'MOBI' */
+#define MOBI_ID             0x4d4f4249
+
 struct mobi_header
 {
     /* Old PalmDOC header */

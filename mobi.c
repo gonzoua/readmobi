@@ -169,6 +169,9 @@ mobi_header_read(mobi_header_t* h, unsigned char *ptr, off_t size)
     ptr += 2;
 
     MOBI_HEADER_READ_4(h->mobi_identifier, ptr);
+    if (h->mobi_identifier != MOBI_ID) {
+        return (-1);
+    }
     MOBI_HEADER_READ_4(h->mobi_header_length, ptr);
     MOBI_HEADER_READ_4(h->mobi_type, ptr);
     MOBI_HEADER_READ_4(h->mobi_text_encoding, ptr);

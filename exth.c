@@ -233,6 +233,8 @@ exth_header_read(exth_header_t* h, unsigned char *ptr, off_t size)
         return (-1);
 
     EXTH_HEADER_READ_4(h->exth_identifier, ptr);
+    if (h->exth_identifier != EXTH_ID)
+        return (-1);
     EXTH_HEADER_READ_4(h->exth_length, ptr);
     EXTH_HEADER_READ_4(h->exth_record_count, ptr);
 
