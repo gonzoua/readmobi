@@ -164,14 +164,15 @@ main(int argc, char **argv)
         record_offset = mobi_file_record_offset(mobi_file, dump_record);
         record_size = mobi_file_record_size(mobi_file, dump_record);
 
-        if ((record_offset > 1) && (record_size > 0)) 
+        if ((record_offset > -1) && (record_size > 0)) 
             write(fileno(stdout), mobi_data + record_offset, record_size);
         else
             fprintf(stderr, "PDB record #%d not found\n", dump_record);
     }
 
     if (dump_text) {
-        
+        if (mobi_file_print_text(mobi_file) < 0)
+            fprintf(stderr, "MOBI uncompress failed\n");
     }
 
     munmap(ptr, file_size);

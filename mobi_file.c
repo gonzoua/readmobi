@@ -27,7 +27,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <unistd.h>
 
+#include "compress.h"
 #include "mobi.h"
 #include "exth.h"
 #include "pdb.h"
@@ -101,6 +103,9 @@ mobi_file_load(mobi_file_t *f, unsigned char *ptr, size_t size)
     file_size -= bytes_read;
     file_pos += bytes_read;
 
+    f->file_data = ptr;
+    f->file_size = size;
+
     return 0;
 }
 
@@ -129,5 +134,107 @@ mobi_file_record_size(mobi_file_t* f, uint32_t id)
             return (h->pdb_records[i].rec_size);
     }
 
+    /* size_t is signed, can't use -1 here */
+    return (0);
+}
+
+int
+mobi_file_print_text(mobi_file_t* f)
+{
+    int rec;
+    int trailing_entry;
+    unsigned char ch;
+    uint32_t te_mask;
+    uint32_t te_size;
+    uint32_t te_size_size;
+    uint32_t overlap_size;
+    uint32_t total_size;
+    uint32_t prev_overlap_size;
+    off_t record_offset;
+    size_t record_size;
+    uint32_t first_content_record = 
+        f->file_mobi_header->mobi_first_content_rec;
+    uint32_t last_content_record =
+        f->file_mobi_header->mobi_last_content_rec;
+
+    unsigned char *chunk;
+    int chunk_size;
+
+    chunk = malloc(MOBI_CHUNK_SIZE);
+
+    te_mask = f->file_mobi_header->mobi_extra_record_data_flags;
+    prev_overlap_size = 0;
+    total_size = 0;
+
+    if (first_content_record == MOBI_NO_RECORD)
+        first_content_record = 1;
+
+    if (last_content_record == MOBI_NO_RECORD)
+        last_content_record = f->file_pdb_header->pdb_num_records - 1;
+
+    for (rec = first_content_record; rec < last_content_record; rec++) {
+        record_offset = mobi_file_record_offset(f, rec);
+        record_size = mobi_file_record_size(f, rec);
+
+        if ((record_offset < 0) || (record_size == 0))
+            goto fail;
+
+        /*
+         * All trailing bits but 1 are common format <data>,<size>
+         * Size is reverse-format variable-length int:
+         *  - big endian
+         *  - 7 bits per byte
+         *  - 8th bit set marks end of the number
+         */
+        for (trailing_entry = 15; trailing_entry > 0; trailing_entry--) {
+            if (te_mask & (1 << trailing_entry)) {
+                te_size = 0;
+                te_size_size = 1;
+
+                do {
+                    ch = f->file_data[record_offset + record_size - te_size_size];
+                    te_size = (te_size << 7) | (ch & 0x7f);
+                    te_size_size++;
+                } while (!(ch & 0x80));
+
+                if (te_size > record_size)
+                    goto fail;
+
+                record_size -= te_size;
+            }
+        }
+
+        /*
+         * Multibyte overlap
+         */
+        ch = f->file_data[record_offset + record_size - 1];
+        overlap_size = ch & 0x3;
+        record_size -= overlap_size + 1;
+
+        if ((chunk_size = palmdoc_decompress(f->file_data + record_offset,
+                    record_size, chunk, MOBI_CHUNK_SIZE)) < 0) {
+            goto fail;
+        }
+        else {
+            write(fileno(stdout), chunk + prev_overlap_size, chunk_size - prev_overlap_size);
+            if (overlap_size)
+                write(fileno(stdout), f->file_data + 
+                        record_offset + record_size, overlap_size);
+
+            total_size += chunk_size - prev_overlap_size + overlap_size;
+
+            prev_overlap_size = overlap_size;
+
+            // End of file
+            if (total_size >= f->file_mobi_header->mobi_text_length) 
+                break;
+        }
+    }
+
+    free(chunk);
+    return (0);
+
+fail:
+    free(chunk);
     return (-1);
 }

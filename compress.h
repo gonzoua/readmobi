@@ -23,28 +23,10 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
+#ifndef __COMPRESS_H__
+#define __COMPRESS_H__
 
+int palmdoc_decompress(unsigned char *, size_t, unsigned char*, size_t);
 
-#ifndef __MOBI_FILE_H__
-#define __MOBI_FILE_H__
+#endif /* __COMPRESS_H__ */
 
-#define MOBI_CHUNK_SIZE     4096
-
-struct mobi_file {
-    unsigned char       *file_data;
-    size_t              file_size;
-    pdb_header_t        *file_pdb_header;
-    mobi_header_t       *file_mobi_header;
-    exth_header_t       *file_exth_header;
-};
-
-typedef struct mobi_file mobi_file_t;
-
-mobi_file_t* mobi_file_alloc();
-int mobi_file_load(mobi_file_t*, unsigned char *, size_t);
-void mobi_file_free(mobi_file_t*);
-off_t mobi_file_record_offset(mobi_file_t*, uint32_t);
-size_t mobi_file_record_size(mobi_file_t*, uint32_t);
-int mobi_file_print_text(mobi_file_t*);
-
-#endif /* __MOBI_FILE_H__ */
