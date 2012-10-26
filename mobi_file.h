@@ -30,6 +30,11 @@
 
 #define MOBI_CHUNK_SIZE     4096
 
+/* 'MOBI' */
+#define PDB_MOBI_TYPE       0x424f4f4b
+/* 'BOOK' */
+#define PDB_MOBI_CREATOR    0x4d4f4249
+
 struct mobi_file {
     unsigned char       *file_data;
     size_t              file_size;

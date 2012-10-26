@@ -35,6 +35,25 @@
 
 #define MIN_PDB_HEADER_SIZE 50
 
+/*
+ * Just to be on the safe side
+ */
+#ifdef PDB_HEADER_READ_2
+#undef  PDB_HEADER_READ_2
+#endif
+
+#ifdef PDB_HEADER_READ_4
+#undef  PDB_HEADER_READ_4
+#endif
+
+#define PDB_HEADER_READ_2(v, ptr) do {     \
+    (v) = bs_read_2((ptr)); (ptr) += 2;     \
+} while (0);
+
+#define PDB_HEADER_READ_4(v, ptr) do {     \
+    (v) = bs_read_4((ptr)); (ptr) += 4;     \
+} while (0);
+
 pdb_header_t*
 pdb_header_alloc()
 {
@@ -105,7 +124,6 @@ off_t
 pdb_header_read(pdb_header_t* h, unsigned char *ptr, off_t size)
 {
     unsigned char *orig_ptr = ptr;
-    int i;
 
     if (size < MIN_PDB_HEADER_SIZE)
         return (-1);
@@ -114,44 +132,31 @@ pdb_header_read(pdb_header_t* h, unsigned char *ptr, off_t size)
     h->pdb_db_name[sizeof(h->pdb_db_name)-1] = 0;
     ptr += sizeof(h->pdb_db_name);
 
-    h->pdb_attributes = bs_read_2(ptr);
-    ptr += 2;
+    PDB_HEADER_READ_2(h->pdb_attributes, ptr);
+    PDB_HEADER_READ_2(h->pdb_version, ptr);
+    PDB_HEADER_READ_4(h->pdb_ctime, ptr);
+    PDB_HEADER_READ_4(h->pdb_mtime, ptr);
+    PDB_HEADER_READ_4(h->pdb_btime, ptr);
+    PDB_HEADER_READ_4(h->pdb_modification, ptr);
+    PDB_HEADER_READ_4(h->pdb_app_info_offset, ptr);
+    PDB_HEADER_READ_4(h->pdb_sort_info_offset, ptr);
+    PDB_HEADER_READ_4(h->pdb_type, ptr);
+    PDB_HEADER_READ_4(h->pdb_creator, ptr);
+    PDB_HEADER_READ_4(h->pdb_uid_seed, ptr);
+    PDB_HEADER_READ_4(h->pdb_next_record, ptr);
+    PDB_HEADER_READ_2(h->pdb_num_records, ptr);
 
-    h->pdb_version = bs_read_2(ptr);
-    ptr += 2;
+    return (ptr - orig_ptr);
+}
 
-    h->pdb_ctime = bs_read_4(ptr);
-    ptr += 4;
+off_t
+pdb_header_read_records(pdb_header_t* h, unsigned char *ptr, off_t size)
+{
+    unsigned char *orig_ptr = ptr;
+    int i;
 
-    h->pdb_mtime = bs_read_4(ptr);
-    ptr += 4;
-
-    h->pdb_btime = bs_read_4(ptr);
-    ptr += 4;
-
-    h->pdb_modification = bs_read_4(ptr);
-    ptr += 4;
-
-    h->pdb_app_info_offset = bs_read_4(ptr);
-    ptr += 4;
-
-    h->pdb_sort_info_offset = bs_read_4(ptr);
-    ptr += 4;
-
-    h->pdb_type = bs_read_4(ptr);
-    ptr += 4;
-
-    h->pdb_creator = bs_read_4(ptr);
-    ptr += 4;
-
-    h->pdb_uid_seed = bs_read_4(ptr);
-    ptr += 4;
-    
-    h->pdb_next_record = bs_read_4(ptr);
-    ptr += 4;
-
-    h->pdb_num_records = bs_read_2(ptr);
-    ptr += 2;
+    if (size < MIN_PDB_HEADER_SIZE)
+        return (-1);
 
     if (h->pdb_num_records) {
         h->pdb_records = malloc(sizeof(pdb_record_t)*h->pdb_num_records);
@@ -178,7 +183,6 @@ pdb_header_read(pdb_header_t* h, unsigned char *ptr, off_t size)
                 h->pdb_records[i+1].rec_offset - h->pdb_records[i].rec_offset;
 
     }
-
 
     /* Trailing two bytes */
     ptr += 2;

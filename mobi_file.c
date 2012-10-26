@@ -79,6 +79,23 @@ mobi_file_load(mobi_file_t *f, unsigned char *ptr, size_t size)
 
     file_size -= bytes_read;
     file_pos += bytes_read;
+
+    /* 
+     * Is it valid MOBIBOOK file?
+     */
+
+    if ((f->file_pdb_header->pdb_type != PDB_MOBI_TYPE) ||
+            (f->file_pdb_header->pdb_creator != PDB_MOBI_CREATOR))
+        return (-1);
+
+    bytes_read = pdb_header_read_records(f->file_pdb_header,
+            ptr + file_pos, file_size);
+    if (bytes_read < 0) {
+        return (-1);
+    }
+
+    file_size -= bytes_read;
+    file_pos += bytes_read;
  
     f->file_mobi_header = mobi_header_alloc();
     bytes_read = mobi_header_read(f->file_mobi_header, 
@@ -170,7 +187,7 @@ mobi_file_print_text(int fd, mobi_file_t* f)
         record_size = mobi_file_record_size(f, rec);
 
         if ((record_offset < 0) || (record_size == 0)) {
-            fprintf(stderr, "%s: record #%d not found", __func__, rec);
+            fprintf(stderr, "%s: record #%d not found\n", __func__, rec);
             goto fail;
         }
 

@@ -142,6 +142,7 @@ main(int argc, char **argv)
 
     mobi_data = (unsigned char*)ptr;
     mobi_file = mobi_file_alloc();
+
     if (mobi_file_load(mobi_file, mobi_data, file_size) < 0) {
         fprintf(stderr, "Failed to load MOBI file\n");
         exit(1);
