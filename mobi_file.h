@@ -45,6 +45,6 @@ int mobi_file_load(mobi_file_t*, unsigned char *, size_t);
 void mobi_file_free(mobi_file_t*);
 off_t mobi_file_record_offset(mobi_file_t*, uint32_t);
 size_t mobi_file_record_size(mobi_file_t*, uint32_t);
-int mobi_file_print_text(mobi_file_t*);
+int mobi_file_print_text(int, mobi_file_t*);
 
 #endif /* __MOBI_FILE_H__ */

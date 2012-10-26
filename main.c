@@ -30,6 +30,7 @@
 #include <sys/mman.h>
 #include <stdint.h>
 #include <unistd.h>
+#include <string.h>
 #include <fcntl.h>
 
 #include "mobi.h"
@@ -40,7 +41,7 @@
 static void
 usage(void)
 {
-    fprintf(stderr, "Usage: readmobi [-adDeEm] [-r id] file.mobi\n");
+    fprintf(stderr, "Usage: readmobi {-adDeEm | -r id | -t file.mhtml} file.mobi\n");
     fprintf(stderr, "\t-a\t\t\tprint all headers/records\n");
     fprintf(stderr, "\t-d\t\t\tprint PDB headers\n");
     fprintf(stderr, "\t-D\t\t\tprint PDB records\n");
@@ -48,7 +49,7 @@ usage(void)
     fprintf(stderr, "\t-E\t\t\tprint EXTH records\n");
     fprintf(stderr, "\t-m\t\t\tprint MOBI headers\n");
     fprintf(stderr, "\t-r record_id\t\tDump PDB record\n");
-    fprintf(stderr, "\t-t\t\t\tDump text\n");
+    fprintf(stderr, "\t-t out_file\t\tDump text to file (\"-\" for stdout)\n");
 }
 
 int
@@ -57,6 +58,8 @@ main(int argc, char **argv)
     int fd;
     void *ptr;
     unsigned char *mobi_data;
+    const char *mhtml_file = NULL;
+    int mhtml_fd;
     mobi_file_t *mobi_file;
     char ch;
 
@@ -70,9 +73,8 @@ main(int argc, char **argv)
     int print_exth_header = 0;
     int print_exth_records = 0;
     int dump_record = -1;
-    int dump_text = 0;
 
-    while ((ch = getopt(argc, argv, "adDeEmr:t?")) != -1) {
+    while ((ch = getopt(argc, argv, "adDeEmr:t:?")) != -1) {
         switch (ch) {
             case 'a':
                 print_pdb_header = 1;
@@ -100,7 +102,7 @@ main(int argc, char **argv)
                 dump_record = atoi(optarg);
                 break;
             case 't':
-                dump_text = 1;
+                mhtml_file = strdup(optarg);
                 break;
             case '?':
             default:
@@ -170,8 +172,19 @@ main(int argc, char **argv)
             fprintf(stderr, "PDB record #%d not found\n", dump_record);
     }
 
-    if (dump_text) {
-        if (mobi_file_print_text(mobi_file) < 0)
+    if (mhtml_file != NULL) {
+        if (strcmp(mhtml_file, "-") == 0)
+            mhtml_fd = fileno(stdout);
+        else
+            mhtml_fd = open(mhtml_file, O_WRONLY | O_CREAT | O_TRUNC);
+
+        if (mhtml_fd == -1) {
+            fprintf(stderr, "Failed to open out file %s\n", mhtml_file);
+            perror("open");
+            exit(1);
+        }
+
+        if (mobi_file_print_text(mhtml_fd, mobi_file) < 0)
             fprintf(stderr, "MOBI uncompress failed\n");
     }
 

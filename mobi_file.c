@@ -135,7 +135,7 @@ mobi_file_record_size(mobi_file_t* f, uint32_t num)
 }
 
 int
-mobi_file_print_text(mobi_file_t* f)
+mobi_file_print_text(int fd, mobi_file_t* f)
 {
     int rec;
     int trailing_entry;
@@ -222,11 +222,11 @@ mobi_file_print_text(mobi_file_t* f)
             goto fail;
         }
         else {
-            write(fileno(stdout), chunk + prev_overlap_size, 
+            write(fd, chunk + prev_overlap_size, 
                     chunk_size - prev_overlap_size);
             if (overlap_size)
-                write(fileno(stdout), f->file_data + 
-                        record_offset + record_size, overlap_size);
+                write(fd, f->file_data + record_offset + record_size, 
+                        overlap_size);
 
             total_size += chunk_size - prev_overlap_size + overlap_size;
 
