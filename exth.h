@@ -97,7 +97,7 @@ struct exth_header {
     uint32_t        exth_identifier;
     uint32_t        exth_length;
     uint32_t        exth_record_count;
-    exth_record_t    *exth_records;
+    exth_record_t   *exth_records;
 };
 
 typedef struct exth_header exth_header_t;
