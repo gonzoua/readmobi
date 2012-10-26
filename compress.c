@@ -42,7 +42,6 @@ palmdoc_decompress(unsigned char *ptr_in, size_t size_in,
 
     while ((pos_in < size_in) && (pos_out < size_out) ) {
         cmd = ptr_in[pos_in++];
-        ptr_out[pos_out] = 0;
         /* Literal */
         if ((cmd == 0) || (cmd > 8 && cmd < 0x80)) {
             ptr_out[pos_out++] = cmd;
