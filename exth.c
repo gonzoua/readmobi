@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <ctype.h>
 
 #include "exth.h"
 #include "bytestream.h"
@@ -87,7 +88,7 @@ static exth_record_desc_t record_descs[] = {
     { EXTH_REC_CREATOR_BUILD,     EXTH_REC_TYPE_INT,      "creator_build"},
     { EXTH_REC_WATERMARK,         EXTH_REC_TYPE_STRING,   "watermark"},
     { EXTH_REC_TPROOF_KEYS,       EXTH_REC_TYPE_STRING,   "tamper_proof_keys"},
-    { EXTH_REC_FONT_SIGN,         EXTH_REC_TYPE_STRING,   "font_signature"},
+    { EXTH_REC_FONT_SIGN,         EXTH_REC_TYPE_BYTES,    "font_signature"},
     { EXTH_REC_CLIP_LIMIT,        EXTH_REC_TYPE_INT,      "clipping_limit"},
     { EXTH_REC_PUBLISHER_LIMIT,   EXTH_REC_TYPE_STRING,   "publisher_limit"},
     { EXTH_REC_TTS_FLAG,          EXTH_REC_TYPE_INT,      "tts_flag"},
@@ -127,27 +128,61 @@ exth_header_free(exth_header_t* header)
 }
 
 static void
-exth_record_print_content(exth_record_t *rec, const exth_record_desc_t *desc)
+exth_record_print_content(exth_record_t *rec, int kind, const char *indent)
 {
     uint32_t val = 0;
-    int i;
+    int i, c;
+    int record_size = rec->exth_rec_length - 8;
 
-    switch (desc->exth_rec_kind) {
+    switch (kind) {
         case EXTH_REC_TYPE_STRING:
-            for (i = 0; i < rec->exth_rec_length - 8; i++)
+            printf("%s", indent);
+            for (i = 0; i < record_size; i++) {
                 printf("%c", rec->exth_rec_data[i]);
+                if (rec->exth_rec_data[i] == '\n')
+                    printf("%s", indent);
+            }
             break;
         case EXTH_REC_TYPE_INT:
-            if (rec->exth_rec_length - 8 > 4) {
+            printf("%s", indent);
+            if (record_size > 4) {
                 printf("<int longer then 32 bits>");
             }
-            for (i = 0; i < rec->exth_rec_length - 8; i++)
+            for (i = 0; i < record_size; i++)
                 val = (val << 8) | rec->exth_rec_data[i];
             printf("%d", val);
             break;
         case EXTH_REC_TYPE_UNKNOWN:
+        case EXTH_REC_TYPE_BYTES:
         default:
-            printf("<unkonw type>");
+            c = 0;
+            while (c < record_size) {
+                printf("%s", indent);
+
+                for (i = 0; i < 16; i++) {
+                    if (c + i >= record_size) {
+                        printf("   ");
+                        continue;
+                    }
+                    printf("%02x ", rec->exth_rec_data[c + i]);
+                }
+
+                printf(" | ");
+                for (i = 0; i < 16; i++) {
+                    if (c + i >= record_size) {
+                        printf(" ");
+                        continue;
+                    }
+                    if (isprint(rec->exth_rec_data[c + i]))
+                        printf("%c", rec->exth_rec_data[c + i]);
+                    else
+                        printf(".");
+                }
+
+                c += 16;
+
+                printf("\n");
+            }
             break;
 
     }
@@ -167,17 +202,20 @@ exth_header_print_records(exth_header_t* h)
 {
     int i;
     const exth_record_desc_t *desc;
+    exth_record_kind_t kind = EXTH_REC_TYPE_UNKNOWN;
 
     printf("EXTH records\n");
 
     for (i = 0; i < h->exth_record_count; i++) {
+        kind = EXTH_REC_TYPE_UNKNOWN;
         desc = exth_get_record_desc(h->exth_records[i].exth_rec_type);
         printf("  <type=%d(%s),data_length=%d>\n",
                 h->exth_records[i].exth_rec_type,
                 desc ? desc->exth_rec_name : "unknown",
                 h->exth_records[i].exth_rec_length - 8);
-        printf("    ");
-        exth_record_print_content(&h->exth_records[i], desc);        
+        if (desc != NULL)
+            kind = desc->exth_rec_kind;
+        exth_record_print_content(&h->exth_records[i], kind, "    ");
         printf("\n");
     }
 }

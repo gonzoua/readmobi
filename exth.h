@@ -70,6 +70,7 @@
 
 enum exth_record_kind {
     EXTH_REC_TYPE_UNKNOWN,
+    EXTH_REC_TYPE_BYTES,
     EXTH_REC_TYPE_STRING,
     EXTH_REC_TYPE_INT
 };
