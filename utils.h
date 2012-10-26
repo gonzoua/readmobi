@@ -28,5 +28,4 @@
 
 const char *id2string(uint32_t);
 
-#endif // __UTILS_H__
-
+#endif /* __UTILS_H__ */

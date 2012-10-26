@@ -74,7 +74,6 @@ mobi_file_load(mobi_file_t *f, unsigned char *ptr, size_t size)
 
     bytes_read = pdb_header_read(f->file_pdb_header, ptr, file_size);
     if (bytes_read < 0) {
-        // fprintf(stderr, "pdb_header_read failed\n");
         return (-1);
     }
 
@@ -85,7 +84,6 @@ mobi_file_load(mobi_file_t *f, unsigned char *ptr, size_t size)
     bytes_read = mobi_header_read(f->file_mobi_header, 
             (ptr + file_pos), file_size);
     if (bytes_read < 0) {
-        // fprintf(stderr, "mobi_header_read failed\n");
         return (-1);
     }
 
@@ -97,7 +95,6 @@ mobi_file_load(mobi_file_t *f, unsigned char *ptr, size_t size)
         bytes_read = exth_header_read(f->file_exth_header, 
                 (ptr + file_pos), file_size);
         if (bytes_read < 0) {
-            // fprintf(stderr, "exth_header_read failed\n");
             return (-1);
         }
 
@@ -232,7 +229,7 @@ mobi_file_print_text(int fd, mobi_file_t* f)
 
             prev_overlap_size = overlap_size;
 
-            // End of file
+            /* End of file? */
             if (total_size >= f->file_mobi_header->mobi_text_length) 
                 break;
 
