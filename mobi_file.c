@@ -207,12 +207,15 @@ mobi_file_print_text(mobi_file_t* f)
             }
         }
 
-        /*
-         * Multibyte overlap
-         */
-        ch = f->file_data[record_offset + record_size - 1];
-        overlap_size = ch & 0x3;
-        record_size -= overlap_size + 1;
+        overlap_size = 0;
+        if (te_mask & 1) {
+            /*
+             * Multibyte overlap
+             */
+            ch = f->file_data[record_offset + record_size - 1];
+            overlap_size = ch & 0x3;
+            record_size -= overlap_size + 1;
+        }
 
         if ((chunk_size = palmdoc_decompress(f->file_data + record_offset,
                     record_size, chunk, MOBI_CHUNK_SIZE)) < 0) {
