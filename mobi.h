@@ -35,12 +35,13 @@
 #define EXTH_EXTRA_UNCROSSABLE      (1 << 2)
 
 #define MOBI_NO_INDEX       0xffffffffU
+#define MOBI_NO_RECORD      0xffffU
 
 struct mobi_header
 {
     /* Old PalmDOC header */
     uint16_t    mobi_compression;
-    uint16_t    mobi_text_length;
+    uint32_t    mobi_text_length;
     uint16_t    mobi_record_count;
     uint16_t    mobi_record_size;
     uint16_t    mobi_encryption_type;
