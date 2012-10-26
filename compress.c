@@ -38,9 +38,11 @@ palmdoc_decompress(unsigned char *ptr_in, size_t size_in,
     unsigned char cmd;
     uint8_t length;
     uint16_t distance;
+    int i;
 
     while ((pos_in < size_in) && (pos_out < size_out) ) {
         cmd = ptr_in[pos_in++];
+        ptr_out[pos_out] = 0;
         /* Literal */
         if ((cmd == 0) || (cmd > 8 && cmd < 0x80)) {
             ptr_out[pos_out++] = cmd;
@@ -61,9 +63,14 @@ palmdoc_decompress(unsigned char *ptr_in, size_t size_in,
             /* 3 last bits are length */
             length = (ptr_in[pos_in] & 7) + 3;
             pos_in++;
-            memcpy(ptr_out + pos_out, ptr_out + pos_out - distance, length);
-            pos_out += length;
-            ptr_out[pos_out] = 0;
+            /*
+             * Copy byte by byte because there might be overlap
+             * between destination and source
+             */
+            for (i = 0; i < length; i++) {
+                ptr_out[pos_out] = ptr_out[pos_out - distance];
+                pos_out++;
+            }
         }
         /* Byte pair */
         if (cmd >= 0xc0) { 
