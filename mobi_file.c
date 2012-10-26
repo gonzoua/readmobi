@@ -92,16 +92,18 @@ mobi_file_load(mobi_file_t *f, unsigned char *ptr, size_t size)
     file_size -= bytes_read;
     file_pos += bytes_read;
 
-    f->file_exth_header = exth_header_alloc();
-    bytes_read = exth_header_read(f->file_exth_header, 
-            (ptr + file_pos), file_size);
-    if (bytes_read < 0) {
-        // fprintf(stderr, "exth_header_read failed\n");
-        return (-1);
-    }
+    if (f->file_mobi_header->mobi_exth_flags & MOBI_EXTH_PRESENT) {
+        f->file_exth_header = exth_header_alloc();
+        bytes_read = exth_header_read(f->file_exth_header, 
+                (ptr + file_pos), file_size);
+        if (bytes_read < 0) {
+            // fprintf(stderr, "exth_header_read failed\n");
+            return (-1);
+        }
 
-    file_size -= bytes_read;
-    file_pos += bytes_read;
+        file_size -= bytes_read;
+        file_pos += bytes_read;
+    }
 
     f->file_data = ptr;
     f->file_size = size;
