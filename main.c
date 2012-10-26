@@ -176,7 +176,7 @@ main(int argc, char **argv)
         if (strcmp(mhtml_file, "-") == 0)
             mhtml_fd = fileno(stdout);
         else
-            mhtml_fd = open(mhtml_file, O_WRONLY | O_CREAT | O_TRUNC);
+            mhtml_fd = open(mhtml_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 
         if (mhtml_fd == -1) {
             fprintf(stderr, "Failed to open out file %s\n", mhtml_file);
