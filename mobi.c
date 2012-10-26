@@ -150,7 +150,6 @@ mobi_header_print(mobi_header_t* h)
 off_t
 mobi_header_read(mobi_header_t* h, unsigned char *ptr, off_t size)
 {
-    unsigned char *orig_ptr = ptr;
     int i;
 
     if (size < MIN_MOBI_HEADER_SIZE)
@@ -228,5 +227,5 @@ mobi_header_read(mobi_header_t* h, unsigned char *ptr, off_t size)
     } else
         h->mobi_indx_record_offset = 0xffffffff;
 
-    return (ptr - orig_ptr);
+    return h->mobi_header_length + 16;
 }
