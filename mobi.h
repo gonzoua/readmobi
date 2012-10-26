@@ -27,6 +27,13 @@
 #define __MOBI_H__
 
 #define MOBI_EXTRA_INDEXES  6
+/* Set if there is EXTH header */
+#define MOBI_EXTH_PRESENT   0x40
+
+#define EXTH_EXTRA_MULTIBYTE        (1 << 0)
+#define EXTH_EXTRA_TBS_INDEX        (1 << 1)
+#define EXTH_EXTRA_UNCROSSABLE      (1 << 2)
+
 #define MOBI_NO_INDEX       0xffffffffU
 
 struct mobi_header

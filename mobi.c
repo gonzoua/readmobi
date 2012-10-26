@@ -125,7 +125,9 @@ mobi_header_print(mobi_header_t* h)
     printf("  Huffman record count: %d\n", h->mobi_huffman_record_count);
     printf("  Huffman table offset: %d\n", h->mobi_huffman_table_offset);
     printf("  Huffman table count: %d\n", h->mobi_huffman_table_count);
-    printf("  EXTH flags: %08x\n", h->mobi_exth_flags);
+    printf("  EXTH flags: %s (0x%08x)\n", 
+            ((h->mobi_exth_flags & MOBI_EXTH_PRESENT) ? "EXTH present" : "No EXTH"),
+            h->mobi_exth_flags);
     printf("  DRM offset: %d\n", h->mobi_drm_offset);
     printf("  DRM count: %d\n", h->mobi_drm_count);
     printf("  DRM size: %d\n", h->mobi_drm_size);
@@ -134,7 +136,14 @@ mobi_header_print(mobi_header_t* h)
     printf("  Last content record #: %d\n", h->mobi_last_content_rec);
     printf("  FCIS record #: %d\n", h->mobi_fcis_rec);
     printf("  FLIS record #: %d\n", h->mobi_flis_rec);
-    printf("  Extra record data flags: %08x\n", h->mobi_extra_record_data_flags);
+    printf("  Extra record data flags:");
+    if (h->mobi_extra_record_data_flags & EXTH_EXTRA_MULTIBYTE)
+        printf(" multibyte");
+    if (h->mobi_extra_record_data_flags & EXTH_EXTRA_TBS_INDEX)
+        printf(" tbs_index");
+    if (h->mobi_extra_record_data_flags & EXTH_EXTRA_UNCROSSABLE)
+        printf(" uncrossable_breaks");
+    printf(" (0x%08x)\n", h->mobi_extra_record_data_flags);
     printf("  INDX record offset: %d\n", h->mobi_indx_record_offset);
 }
 
