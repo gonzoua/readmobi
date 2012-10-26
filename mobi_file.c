@@ -112,29 +112,23 @@ mobi_file_load(mobi_file_t *f, unsigned char *ptr, size_t size)
 }
 
 off_t
-mobi_file_record_offset(mobi_file_t* f, uint32_t id)
+mobi_file_record_offset(mobi_file_t* f, uint32_t num)
 {
-    int i;
     pdb_header_t *h = f->file_pdb_header;
 
-    for (i = 0; i < h->pdb_num_records; i++) {
-        if (h->pdb_records[i].rec_id == id)
-            return (h->pdb_records[i].rec_offset);
-    }
+    if (num < h->pdb_num_records)
+        return (h->pdb_records[num].rec_offset);
 
     return (-1);
 }
 
 size_t
-mobi_file_record_size(mobi_file_t* f, uint32_t id)
+mobi_file_record_size(mobi_file_t* f, uint32_t num)
 {
-    int i;
     pdb_header_t *h = f->file_pdb_header;
 
-    for (i = 0; i < h->pdb_num_records; i++) {
-        if (h->pdb_records[i].rec_id  == id)
-            return (h->pdb_records[i].rec_size);
-    }
+    if (num < h->pdb_num_records)
+        return (h->pdb_records[num].rec_size);
 
     /* size_t is signed, can't use -1 here */
     return (0);
@@ -178,8 +172,10 @@ mobi_file_print_text(mobi_file_t* f)
         record_offset = mobi_file_record_offset(f, rec);
         record_size = mobi_file_record_size(f, rec);
 
-        if ((record_offset < 0) || (record_size == 0))
+        if ((record_offset < 0) || (record_size == 0)) {
+            fprintf(stderr, "%s: record #%d not found", __func__, rec);
             goto fail;
+        }
 
         /*
          * All trailing bits but 1 are common format <data>,<size>
@@ -195,12 +191,17 @@ mobi_file_print_text(mobi_file_t* f)
 
                 do {
                     ch = f->file_data[record_offset + record_size - te_size_size];
-                    te_size = (te_size << 7) | (ch & 0x7f);
+                    te_size |= ((ch & 0x7f) << (7 * (te_size_size - 1)));
                     te_size_size++;
                 } while (!(ch & 0x80));
 
-                if (te_size > record_size)
+                if (te_size > record_size) {
+                    fprintf(stderr, 
+                            "%s: trailing etry size is too long "
+                            "in record #%d: record_size = %zd, TE size: %d\n",
+                            __func__, rec, record_size, te_size);
                     goto fail;
+                }
 
                 record_size -= te_size;
             }
@@ -218,7 +219,8 @@ mobi_file_print_text(mobi_file_t* f)
             goto fail;
         }
         else {
-            write(fileno(stdout), chunk + prev_overlap_size, chunk_size - prev_overlap_size);
+            write(fileno(stdout), chunk + prev_overlap_size, 
+                    chunk_size - prev_overlap_size);
             if (overlap_size)
                 write(fileno(stdout), f->file_data + 
                         record_offset + record_size, overlap_size);
@@ -230,6 +232,7 @@ mobi_file_print_text(mobi_file_t* f)
             // End of file
             if (total_size >= f->file_mobi_header->mobi_text_length) 
                 break;
+
         }
     }
 

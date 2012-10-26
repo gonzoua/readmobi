@@ -105,7 +105,7 @@ off_t
 pdb_header_read(pdb_header_t* h, unsigned char *ptr, off_t size)
 {
     unsigned char *orig_ptr = ptr;
-    int i, j;
+    int i;
 
     if (size < MIN_PDB_HEADER_SIZE)
         return (-1);
@@ -170,18 +170,13 @@ pdb_header_read(pdb_header_t* h, unsigned char *ptr, off_t size)
 
     /* Calculate record sizes */
     for (i = 0; i < h->pdb_num_records; i++) {
-        h->pdb_records[i].rec_size = 0;
-        /* Records not sorted, look through all of them */
-        for (j = 0; j < h->pdb_num_records; j++) {
-            if (h->pdb_records[j].rec_id == (h->pdb_records[i].rec_id + 1))
-                h->pdb_records[i].rec_size = 
-                    h->pdb_records[j].rec_offset - h->pdb_records[i].rec_offset;
-        }
-
         /* last record */
-        if (h->pdb_records[i].rec_size == 0) {
+        if ((i + 1) ==  h->pdb_num_records)
             h->pdb_records[i].rec_size = size - h->pdb_records[i].rec_offset;
-        }
+        else
+            h->pdb_records[i].rec_size = 
+                h->pdb_records[i+1].rec_offset - h->pdb_records[i].rec_offset;
+
     }
 
 
