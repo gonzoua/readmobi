@@ -38,10 +38,12 @@
 #include "pdb.h"
 #include "mobi_file.h"
 
+#define VERSION "1.0"
+
 static void
 usage(void)
 {
-    fprintf(stderr, "Usage: readmobi {-adDeEm | -r id | -t file.mhtml} file.mobi\n");
+    fprintf(stderr, "Usage: readmobi {-v | -adDeEm | -r id | -t file.mhtml} [file.mobi]\n");
     fprintf(stderr, "\t-a\t\t\tprint all headers/records\n");
     fprintf(stderr, "\t-d\t\t\tprint PDB headers\n");
     fprintf(stderr, "\t-D\t\t\tprint PDB records\n");
@@ -50,6 +52,7 @@ usage(void)
     fprintf(stderr, "\t-m\t\t\tprint MOBI headers\n");
     fprintf(stderr, "\t-r record_id\t\tDump PDB record\n");
     fprintf(stderr, "\t-t out_file\t\tDump text to file (\"-\" for stdout)\n");
+    fprintf(stderr, "\t-v\t\t\tprint version and exit\n");
 }
 
 int
@@ -74,7 +77,7 @@ main(int argc, char **argv)
     int print_exth_records = 0;
     int dump_record = -1;
 
-    while ((ch = getopt(argc, argv, "adDeEmr:t:?")) != -1) {
+    while ((ch = getopt(argc, argv, "adDeEmr:t:v?")) != -1) {
         switch (ch) {
             case 'a':
                 print_pdb_header = 1;
@@ -103,6 +106,10 @@ main(int argc, char **argv)
                 break;
             case 't':
                 mhtml_file = strdup(optarg);
+                break;
+            case 'v':
+                printf("readmobi version %s\n", VERSION); 
+                exit(0);
                 break;
             case '?':
             default:
