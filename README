@@ -1,0 +1,35 @@
+== Tool
+
+readmobi is a simple tool for reading .mobi files' header information
+and full text
+
+== Build
+
+Just run "make" command. Should be enough for FreeBSD, Linux and OS X.
+
+== Use
+Usage: readmobi {-adDeEm | -r id | -t file.mhtml} file.mobi
+        -a                      print all headers/records
+        -d                      print PDB headers
+        -D                      print PDB records
+        -e                      print EXTH header
+        -E                      print EXTH records
+        -m                      print MOBI headers
+        -r record_id            Dump PDB record
+        -t out_file             Dump text to file ("-" for stdout)
+
+Examples:
+
+Dump all headers:
+  $ readmobi -a Book.mobi
+
+Dump EXTH records:
+  $ readmobi -E Book.mobi
+
+Extract book mhtml:
+  $ readmobi -t book.mhtml Book.mobi
+
+Extract image:
+  $ readmobi -m Book.mobi  | grep "First image index"
+  $ readmobi -r 408 Book.mobi > file.jpg
+
